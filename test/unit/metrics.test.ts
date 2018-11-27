@@ -18,9 +18,6 @@
  * Gates Foundation
  - Name Surname <name.surname@gatesfoundation.com>
 
- - Pedro Barreto <pedrob@crosslaketech.com>
- - Rajiv Mothilal <rajivmothilal@gmail.com>
- - Miguel de Barros <miguel.debarros@modusbox.com>
  - Shashikant Hirugade <shashikant.hirugade@modusbox.com>
 
  --------------
@@ -28,12 +25,10 @@
 
 'use strict'
 
-// import { Test } from "tape";
-
 const Test = require('tapes')(require('tape'))
 import { Metrics } from "../../src/metrics"
-import * as  Sinon from "sinon"
-import * as Client from 'prom-client'
+// import * as  Sinon from "sinon"
+// import * as Client from 'prom-client'
 
 Test('Metrics Class Test', (metricsTest: any) => {
     // let sandbox: any
