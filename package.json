@@ -5,7 +5,11 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "npm run test:unit | faucet",
-    "build": "tsc"
+    "pretest": "standard",
+    "standard": "standard",
+    "build": "tsc",
+    "test:unit": "ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts'",
+    "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text"
   },
   "repository": {
     "type": "git",
@@ -23,11 +27,30 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-metrics#readme",
   "dependencies": {
-    "@mojaloop/central-services-shared": "^3.9.2-snapshot",
-    "prom-client": "^11.2.0"
+    "@mojaloop/central-services-shared": "3.9.2-snapshot",
+    "prom-client": "11.2.0"
   },
   "devDependencies": {
-    "@types/node": "^10.12.10",
-    "typescript": "^3.1.6"
+    "@types/node": "10.12.10",
+    "@types/sinon": "5.0.7",
+    "@types/tape": "4.2.32",
+    "faucet": "0.0.1",
+    "nyc": "13.1.0",
+    "pre-commit": "1.2.2",
+    "sinon": "7.1.1",
+    "standard": "12.0.1",
+    "tap-spec": "5.0.0",
+    "tape": "4.9.1",
+    "tapes": "4.1.0",
+    "ts-node": "7.0.1",
+    "typescript": "3.1.6"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ]
   }
 }

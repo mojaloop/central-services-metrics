@@ -36,24 +36,25 @@ type metricOptionsType = {
   timeout: number,
   prefix: string
 }
-type histogramsType = { [key: string]: object }
+type histogramsType = { [key: string]: client.Histogram }
 
 class Metrics {
   private alreadySetup: boolean = false
-  private histograms: histogramsType = { ['']: {} }
+  private histograms: histogramsType = {}
   private options: metricOptionsType = { prefix: '', timeout: 0 }
 
-  setup = (options: metricOptionsType): void => {
+  setup = (options: metricOptionsType): boolean => {
     if (this.alreadySetup) {
-      return
+      return false
     }
     this.options = options
     client.collectDefaultMetrics(this.options)
     client.register.metrics()
     this.alreadySetup = true
+    return true
   }
 
-  getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): object => {
+  getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram => {
     try {
       if (this.histograms[name]) {
         return this.histograms[name]
@@ -70,7 +71,7 @@ class Metrics {
     }
   }
 
-  getMetricsForPrometheus = (): any => {
+  getMetricsForPrometheus = (): string => {
     return client.register.metrics()
   }
 
