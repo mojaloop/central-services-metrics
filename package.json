@@ -1,0 +1,33 @@
+{
+  "name": "@mojaloop/central-services-metrics",
+  "version": "1.0.0",
+  "description": "Shared code for metrics generation",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "npm run test:unit | faucet",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mojaloop/central-services-metrics.git"
+  },
+  "keywords": [
+    "metrics",
+    "central",
+    "services"
+  ],
+  "author": "shashi165",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mojaloop/central-services-metrics/issues"
+  },
+  "homepage": "https://github.com/mojaloop/central-services-metrics#readme",
+  "dependencies": {
+    "@mojaloop/central-services-shared": "^3.9.2-snapshot",
+    "prom-client": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.10",
+    "typescript": "^3.1.6"
+  }
+}
