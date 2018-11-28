@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "Shared code for metrics generation",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "npm run test:unit | faucet",
     "pretest": "standard",
     "standard": "standard",
     "build": "tsc",
     "test:unit": "ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts'",
-    "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text"
+    "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text",
+    "git:stagelib": "git add lib/*"
   },
+  "pre-commit": ["test", "build", "git:stagelib"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mojaloop/central-services-metrics.git"
@@ -32,12 +35,10 @@
   },
   "devDependencies": {
     "@types/node": "10.12.10",
-    "@types/sinon": "5.0.7",
     "@types/tape": "4.2.32",
     "faucet": "0.0.1",
     "nyc": "13.1.0",
     "pre-commit": "1.2.2",
-    "sinon": "7.1.1",
     "standard": "12.0.1",
     "tap-spec": "5.0.0",
     "tape": "4.9.1",

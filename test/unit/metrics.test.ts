@@ -27,26 +27,12 @@
 
 const Test = require('tapes')(require('tape'))
 import { Metrics } from "../../src/metrics"
-import * as  Sinon from "sinon"
-import * as Client from 'prom-client'
 
 Test('Metrics Class Test', (metricsTest: any) => {
-    // let sandbox: any
     type metricOptionsType = {
         timeout: number,
         prefix: string
     }
-
-    // metricsTest.beforeEach((t: any) => {
-    //     sandbox = Sinon.createSandbox()
-    //     //   sandbox.stub(Client, 'collectDefaultMetrics').returns(true)
-    //     t.end()
-    // })
-
-    // metricsTest.afterEach((t: any) => {
-    //     sandbox.restore()
-    //     t.end()
-    // })
 
     metricsTest.test('setup should', (setupTest: any) => {
         setupTest.test('initialize the metrics object', async (test: any) => {
@@ -241,54 +227,28 @@ Test('Metrics Class Test', (metricsTest: any) => {
             }
         })
 
+        // TODO: Fix this test to get 100% coverage
         // getHistogramTest.test('return the error while getting histogram', async (test: any) => {
         //     try {
-        //         // let sandbox: Sinon.SinonSandbox = Sinon.createSandbox()
-        //         class HistogramStub {
-        //             constructor() {
-        //                 new Error()                        
-        //             }
-        //         }
-        //         Sinon.stub(Client).Histogram = HistogramStub
-        //         // const ProducerSpy = Sinon.spy(Client.Histogram.prototype, 'constructor')
 
-        //         //     sandbox = Sinon.createSandbox()
-        //         // const stub = sandbox.stub(Client.Histogram.prototype, 'constructor'); 
-
-        //         // let myService = Sinon.createStubInstance(Client.Histogram, {constructor = () => { throw new Error()}})
-        //         // controller = new MyStuff.MyController(myService as any, ...); 
-
-        //         //   sandbox.stub(, 'constructor' )
-        //         // Client.Histogram. = sandbox.stub()
-
-        //         // sandbox.stub(Client.Histogram.prototype, 'constructor').throws(new Error())
+        //         const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
 
         //         const metrics: Metrics = new Metrics()
+        //         console.log(JSON.stringify(metrics))
         //         const options: metricOptionsType = {
         //             prefix: 'prefix7_',
         //             timeout: 1000
         //         }
-        //         const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
-        //         const expected = {
-        //             name: 'prefix7_test_request',
-        //             help: 'Histogram for http operation',
-        //             aggregator: 'sum',
-        //             upperBounds: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
-        //             bucketValues: { '1': 0, '2': 0, '3': 0, '0.01': 0, '0.05': 0, '0.1': 0, '0.5': 0 },
-        //             sum: 0,
-        //             count: 0,
-        //             hashMap: {},
-        //             labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
-        //         }
-
         //         metrics.setup(options)
+
         //         const result: object = metrics.getHistogram('test_request_fake',
         //             'Histogram for http operation',
         //             ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-        //         test.deepEqual(expected, result, 'Results Match')
-        //         test.end()
-        //     } catch (e) {
         //         test.fail('Error Thrown')
+        //         test.end()
+
+        //     } catch (e) {
+        //         test.ok(e instanceof Error)
         //         test.end()
         //     }
         // })
