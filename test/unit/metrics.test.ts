@@ -27,8 +27,8 @@
 
 const Test = require('tapes')(require('tape'))
 import { Metrics } from "../../src/metrics"
-// import * as  Sinon from "sinon"
-// import * as Client from 'prom-client'
+import * as  Sinon from "sinon"
+import * as Client from 'prom-client'
 
 Test('Metrics Class Test', (metricsTest: any) => {
     // let sandbox: any
@@ -244,9 +244,24 @@ Test('Metrics Class Test', (metricsTest: any) => {
         // getHistogramTest.test('return the error while getting histogram', async (test: any) => {
         //     try {
         //         // let sandbox: Sinon.SinonSandbox = Sinon.createSandbox()
-        //         // Client.Histogram.prototype = sandbox.stub()
+        //         class HistogramStub {
+        //             constructor() {
+        //                 new Error()                        
+        //             }
+        //         }
+        //         Sinon.stub(Client).Histogram = HistogramStub
+        //         // const ProducerSpy = Sinon.spy(Client.Histogram.prototype, 'constructor')
 
-        //         // sandbox.stub(Client.Histogram.prototype).throws(new Error())
+        //         //     sandbox = Sinon.createSandbox()
+        //         // const stub = sandbox.stub(Client.Histogram.prototype, 'constructor'); 
+
+        //         // let myService = Sinon.createStubInstance(Client.Histogram, {constructor = () => { throw new Error()}})
+        //         // controller = new MyStuff.MyController(myService as any, ...); 
+
+        //         //   sandbox.stub(, 'constructor' )
+        //         // Client.Histogram. = sandbox.stub()
+
+        //         // sandbox.stub(Client.Histogram.prototype, 'constructor').throws(new Error())
 
         //         const metrics: Metrics = new Metrics()
         //         const options: metricOptionsType = {

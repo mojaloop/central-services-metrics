@@ -62,3 +62,6 @@ typings/
 
 # lib directory
 lib/
+
+# typedocs directory
+docs/

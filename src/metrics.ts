@@ -31,18 +31,32 @@
 import client = require('prom-client')
 const Logger = require('@mojaloop/central-services-shared').Logger
 
-
+/**
+ * Type that represents the options that are required to setup the prom-client
+ */
 type metricOptionsType = {
   timeout: number,
   prefix: string
 }
+/**
+ * Object that holds the histogram values
+ */
 type histogramsType = { [key: string]: client.Histogram }
 
+/** Wrapper class for prom-client. */
 class Metrics {
+  /** To make sure the setup is run only once */
   private alreadySetup: boolean = false
+
+  /** Object containg the histogram values */
   private histograms: histogramsType = {}
+
+  /** The options passed to the setup */
   private options: metricOptionsType = { prefix: '', timeout: 0 }
 
+  /**
+   * Setup the prom client for collecting metrics using the options passed
+   */
   setup = (options: metricOptionsType): boolean => {
     if (this.alreadySetup) {
       return false
@@ -54,6 +68,9 @@ class Metrics {
     return true
   }
 
+  /**
+   * Get the histogram values for given name
+   */
   getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram => {
     try {
       if (this.histograms[name]) {
@@ -71,10 +88,16 @@ class Metrics {
     }
   }
 
+  /**
+   * Get the metrics
+   */
   getMetricsForPrometheus = (): string => {
     return client.register.metrics()
   }
 
+  /**
+   * Get the options that are used to setup the prom-client
+   */
   getOptions = (): metricOptionsType => {
     return this.options
   }
