@@ -14,7 +14,7 @@
     "git:stagelib": "git add lib/*",
     "git:standardFix": "standard --fix"
   },
-  "pre-commit": ["test", "build", "git:standardFix", "git:stagelib"],
+  "pre-commit": ["build", "git:standardFix", "test", "git:stagelib"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mojaloop/central-services-metrics.git"

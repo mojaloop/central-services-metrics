@@ -29,7 +29,6 @@
 'use strict'
 
 import client = require('prom-client')
-const Logger = require('@mojaloop/central-services-shared').Logger
 
 /**
  * Type that represents the options that are required to setup the prom-client
