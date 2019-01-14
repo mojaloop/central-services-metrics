@@ -1,0 +1,59 @@
+{
+  "name": "@mojaloop/central-services-metrics",
+  "version": "1.0.0",
+  "description": "Shared code for metrics generation",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "npm run test:unit | faucet",
+    "pretest": "standard",
+    "standard": "standard",
+    "build": "tsc",
+    "test:unit": "ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts'",
+    "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text",
+    "git:stagelib": "git add lib/*",
+    "git:standardFix": "standard --fix"
+  },
+  "pre-commit": ["build", "git:standardFix", "test", "git:stagelib"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mojaloop/central-services-metrics.git"
+  },
+  "keywords": [
+    "metrics",
+    "central",
+    "services"
+  ],
+  "author": "shashi165",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mojaloop/central-services-metrics/issues"
+  },
+  "homepage": "https://github.com/mojaloop/central-services-metrics#readme",
+  "dependencies": {
+    "@mojaloop/central-services-shared": "3.9.2-snapshot",
+    "prom-client": "11.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "10.12.10",
+    "@types/tape": "4.2.32",
+    "faucet": "0.0.1",
+    "nyc": "13.1.0",
+    "pre-commit": "1.2.2",
+    "standard": "12.0.1",
+    "tap-spec": "5.0.0",
+    "tape": "4.9.1",
+    "tapes": "4.1.0",
+    "ts-node": "7.0.1",
+    "typedoc": "0.13.0",
+    "typescript": "3.1.6"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ]
+  }
+}
