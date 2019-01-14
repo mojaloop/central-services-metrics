@@ -62,3 +62,6 @@ typings/
 
 # typedocs directory
 docs/
+
+# editor directory
+.vscode/
