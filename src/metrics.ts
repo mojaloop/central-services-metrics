@@ -31,12 +31,22 @@
 import client = require('prom-client')
 
 /**
- * Type that represents the options that are required to setup the prom-client
+ * Type that represents the options that are required for setup
  */
 type metricOptionsType = {
-  timeout: number,
-  prefix: string
+    timeout: number,
+    prefix: string,
+    defaultLabels?: Map<string, string>
 }
+
+/**
+ * Type that represents the options that are required to setup the prom-client specifically
+ */
+type normalisedMetricOptionsType = {
+    timeout: number,
+    prefix: string
+}
+
 /**
  * Object that holds the histogram values
  */
@@ -44,62 +54,73 @@ type histogramsType = { [key: string]: client.Histogram }
 
 /** Wrapper class for prom-client. */
 class Metrics {
-  /** To make sure the setup is run only once */
-  private alreadySetup: boolean = false
+    /** To make sure the setup is run only once */
+    private _alreadySetup: boolean = false
 
-  /** Object containg the histogram values */
-  private histograms: histogramsType = {}
+    /** Object containg the histogram values */
+    private _histograms: histogramsType = {}
 
-  /** The options passed to the setup */
-  private options: metricOptionsType = { prefix: '', timeout: 0 }
+    /** The options passed to the setup */
+    private _options: metricOptionsType = { prefix: '', timeout: 0 }
 
-  /**
-   * Setup the prom client for collecting metrics using the options passed
-   */
-  setup = (options: metricOptionsType): boolean => {
-    if (this.alreadySetup) {
-      return false
+    /**
+     * Setup the prom client for collecting metrics using the options passed
+     */
+    setup = (options: metricOptionsType): boolean => {
+        if (this._alreadySetup) {
+            return false
+        }
+        this._options = options
+        // map the options to the normalised options specific to the prom-client
+        let normalisedOptions: normalisedMetricOptionsType = {
+            prefix: this._options.prefix,
+            timeout: this._options.timeout
+        }
+        if(this._options.defaultLabels !== undefined){
+            client.register.setDefaultLabels(this._options.defaultLabels)
+        }
+        client.collectDefaultMetrics(normalisedOptions)
+        client.register.metrics()
+        this._alreadySetup = true
+        return true
     }
-    this.options = options
-    client.collectDefaultMetrics(this.options)
-    client.register.metrics()
-    this.alreadySetup = true
-    return true
-  }
 
-  /**
-   * Get the histogram values for given name
-   */
-  getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram => {
-    try {
-      if (this.histograms[name]) {
-        return this.histograms[name]
-      }
-      this.histograms[name] = new client.Histogram({
-        name: `${this.getOptions().prefix}${name}`,
-        help: help || `${name}_histogram`,
-        labelNames,
-        buckets // this is in seconds - the startTimer().end() collects in seconds with ms precision
-      })
-      return this.histograms[name]
-    } catch (e) {
-      throw new Error(`Couldn't get metrics histogram for ${name}`)
+    /**
+     * Get the histogram values for given name
+     */
+    getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram => {
+        try {
+            if (this._histograms[name]) {
+                return this._histograms[name]
+            }
+            this._histograms[name] = new client.Histogram({
+                name: `${this.getOptions().prefix}${name}`,
+                help: help || `${name}_histogram`,
+                labelNames,
+                buckets // this is in seconds - the startTimer().end() collects in seconds with ms precision
+            })
+            return this._histograms[name]
+        } catch (e) {
+            throw new Error(`Couldn't get metrics histogram for ${name}`)
+        }
     }
-  }
 
-  /**
-   * Get the metrics
-   */
-  getMetricsForPrometheus = (): string => {
-    return client.register.metrics()
-  }
+    /**
+     * Get the metrics
+     */
+    getMetricsForPrometheus = (): string => {
+        return client.register.metrics()
+    }
 
-  /**
-   * Get the options that are used to setup the prom-client
-   */
-  getOptions = (): metricOptionsType => {
-    return this.options
-  }
+    /**
+     * Get the options that are used to setup the prom-client
+     */
+    getOptions = (): metricOptionsType => {
+        return this._options
+    }
 }
 
-export { Metrics }
+export {
+    Metrics,
+    metricOptionsType
+}

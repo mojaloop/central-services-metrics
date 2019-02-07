@@ -26,13 +26,9 @@
 'use strict'
 
 const Test = require('tapes')(require('tape'))
-import { Metrics } from "../../src/metrics"
+import { Metrics, metricOptionsType } from "../../src/metrics"
 
 Test('Metrics Class Test', (metricsTest: any) => {
-    type metricOptionsType = {
-        timeout: number,
-        prefix: string
-    }
 
     metricsTest.test('setup should', (setupTest: any) => {
         setupTest.test('initialize the metrics object', async (test: any) => {
@@ -47,7 +43,35 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.deepEqual(metrics.getOptions(), options, 'Options match')
                 test.end()
             } catch (e) {
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        setupTest.test('initialize the metrics object with default labels', async (test: any) => {
+            console.log('******STARTING********')
+            try {
+                const metrics: Metrics = new Metrics()
+                let defaultLabels = new Map()
+                defaultLabels.set('serviceName', 'testService')
+                // const defaultLabels = {
+                //     serviceName: 'testService'
+                // }
+                const options: metricOptionsType = {
+                    prefix: 'prefix2_',
+                    timeout: 1000,
+                    defaultLabels
+                }
+                console.log(`options=${JSON.stringify(options)}`)
+                console.log('******SET-START********')
+                let result = metrics.setup(options)
+                console.log('******SET-END********')
+                test.equal(result, true, 'Result match')
+                console.log(`options: ${JSON.stringify(metrics.getOptions())}`)
+                test.deepEqual(metrics.getOptions(), options, 'Options match')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
@@ -64,7 +88,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.equal(result, false, 'Result match')
                 test.end()
             } catch (e) {
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
@@ -97,7 +121,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.end()
             } catch (e) {
                 console.log(e)
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
@@ -119,7 +143,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.end()
             } catch (e) {
                 console.log(e)
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
@@ -155,7 +179,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.deepEqual(expected, result, 'Results Match')
                 test.end()
             } catch (e) {
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
@@ -187,7 +211,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.deepEqual(expected, result, 'Results Match')
                 test.end()
             } catch (e) {
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
@@ -222,7 +246,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.deepEqual(expected, secondResult, 'Results Match')
                 test.end()
             } catch (e) {
-                test.fail('Error Thrown')
+                test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })

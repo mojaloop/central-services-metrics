@@ -1,24 +1,25 @@
 {
   "name": "@mojaloop/central-services-metrics",
-  "version": "4.4.0",
+  "version": "5.1.0",
   "description": "Shared code for metrics generation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "npm run test:unit | faucet",
-    "pretest": "standard",
+    "pretest": "npm run build",
     "standard": "standard",
-    "build": "tsc",
+    "build": "tsc; standard --fix",
+    "watch": "tsc -w",
     "test:unit": "ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts'",
     "test:xunit": "npm run test:unit | tap-xunit",
     "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text",
-    "git:stagelib": "git add lib/*",
+    "git:stagelib": "git add lib/*ts; git add lib/*.map; git add lib/*.js",
     "git:standardFix": "standard --fix"
   },
   "pre-commit": [
     "build",
     "git:standardFix",
-    "test",
+    "test:unit",
     "git:stagelib"
   ],
   "repository": {
@@ -44,6 +45,7 @@
     "@types/node": "10.12.10",
     "@types/tape": "4.2.32",
     "faucet": "0.0.1",
+    "debug": "^4.1.1",
     "nyc": "13.1.0",
     "pre-commit": "1.2.2",
     "standard": "12.0.1",
@@ -52,12 +54,14 @@
     "tape": "4.9.1",
     "tapes": "4.1.0",
     "ts-node": "7.0.1",
+    "tslint": "^5.12.1",
     "typedoc": "0.13.0",
-    "typescript": "3.1.6"
+    "typescript": "^3.1.6"
   },
   "nyc": {
     "include": [
-      "src/**/*.ts"
+      "src/**/*.ts",
+      "test/**/*.test.ts"
     ],
     "extension": [
       ".ts"
