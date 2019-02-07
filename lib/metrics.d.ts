@@ -27,20 +27,21 @@
  ******/
 import client = require('prom-client');
 /**
- * Type that represents the options that are required to setup the prom-client
+ * Type that represents the options that are required for setup
  */
 declare type metricOptionsType = {
     timeout: number;
     prefix: string;
+    defaultLabels?: Map<string, string>;
 };
 /** Wrapper class for prom-client. */
 declare class Metrics {
     /** To make sure the setup is run only once */
-    private alreadySetup;
+    private _alreadySetup;
     /** Object containg the histogram values */
-    private histograms;
+    private _histograms;
     /** The options passed to the setup */
-    private options;
+    private _options;
     /**
      * Setup the prom client for collecting metrics using the options passed
      */
@@ -58,4 +59,4 @@ declare class Metrics {
      */
     getOptions: () => metricOptionsType;
 }
-export { Metrics };
+export { Metrics, metricOptionsType };
