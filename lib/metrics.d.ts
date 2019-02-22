@@ -38,7 +38,7 @@ declare type metricOptionsType = {
 declare class Metrics {
     /** To make sure the setup is run only once */
     private _alreadySetup;
-    /** Object containg the histogram values */
+    /** Object containing the histogram values */
     private _histograms;
     /** The options passed to the setup */
     private _options;

@@ -57,7 +57,7 @@ class Metrics {
     /** To make sure the setup is run only once */
     private _alreadySetup: boolean = false
 
-    /** Object containg the histogram values */
+    /** Object containing the histogram values */
     private _histograms: histogramsType = {}
 
     /** The options passed to the setup */
