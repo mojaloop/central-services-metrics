@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-metrics#readme",
   "dependencies": {
-    "@mojaloop/central-services-shared": "6.4.1",
+    "@mojaloop/central-services-shared": "7.4.3",
     "prom-client": "11.5.3"
   },
   "devDependencies": {
