@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-metrics",
-  "version": "7.4.0",
+  "version": "8.3.0",
   "description": "Shared code for metrics generation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -43,24 +43,23 @@
   },
   "homepage": "https://github.com/mojaloop/central-services-metrics#readme",
   "dependencies": {
-    "@mojaloop/central-services-shared": "7.4.3",
     "prom-client": "11.5.3"
   },
   "devDependencies": {
-    "@types/node": "12.7.2",
+    "@types/node": "12.11.7",
     "@types/tape": "4.2.33",
     "debug": "4.1.1",
     "faucet": "0.0.1",
-    "npm-audit-resolver": "1.5.0",
+    "npm-audit-resolver": "2.1.0",
     "nyc": "14.1.1",
     "pre-commit": "1.2.2",
-    "standard": "14.0.0",
+    "standard": "14.3.1",
     "tap-spec": "5.0.0",
     "tap-xunit": "2.4.1",
     "tape": "4.11.0",
     "tapes": "4.1.0",
-    "ts-node": "8.3.0",
-    "tslint": "5.18.0",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
     "typedoc": "0.15.0",
     "typescript": "3.5.3"
   },
