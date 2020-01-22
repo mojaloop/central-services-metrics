@@ -58,5 +58,9 @@ declare class Metrics {
      * Get the options that are used to setup the prom-client
      */
     getOptions: () => metricOptionsType;
+    /**
+     * Get the alreadySetup that is used to make sure the setup is run only once
+     */
+    getAlreadySetup: () => boolean;
 }
 export { Metrics, metricOptionsType };
