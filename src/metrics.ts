@@ -67,7 +67,7 @@ class Metrics {
      * Setup the prom client for collecting metrics using the options passed
      */
     setup = (options: metricOptionsType): boolean => {
-        if (this._alreadySetup) {
+        if (this.getAlreadySetup()) {
             return false
         }
         this._options = options
@@ -117,6 +117,13 @@ class Metrics {
      */
     getOptions = (): metricOptionsType => {
         return this._options
+    }
+
+    /**
+     * Get the alreadySetup that is used to make sure the setup is run only once
+     */
+    getAlreadySetup = (): boolean => {
+        return this._alreadySetup
     }
 }
 
