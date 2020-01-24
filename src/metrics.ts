@@ -118,6 +118,13 @@ class Metrics {
     getOptions = (): metricOptionsType => {
         return this._options
     }
+
+    /**
+     * To check is it the Metrics already initiated
+     */
+    isInitiated = (): boolean => {
+        return this._alreadySetup
+    }
 }
 
 export {
