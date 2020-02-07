@@ -42,6 +42,7 @@ declare class Metrics {
     private _histograms;
     /** The options passed to the setup */
     private _options;
+    private _summaries;
     /**
      * Setup the prom client for collecting metrics using the options passed
      */
@@ -50,6 +51,10 @@ declare class Metrics {
      * Get the histogram values for given name
      */
     getHistogram: (name: string, help?: string | undefined, labelNames?: string[] | undefined, buckets?: number[]) => client.Histogram;
+    /**
+     * Get the summary for given name
+     */
+    getSummary: (name: string, help?: string | undefined, labelNames?: string[] | undefined, percentiles?: number[], maxAgeSeconds?: number, ageBuckets?: number) => client.Summary;
     /**
      * Get the metrics
      */

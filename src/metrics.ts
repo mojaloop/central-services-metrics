@@ -52,6 +52,8 @@ type normalisedMetricOptionsType = {
  */
 type histogramsType = { [key: string]: client.Histogram }
 
+type summariesType = { [key: string]: client.Summary }
+
 /** Wrapper class for prom-client. */
 class Metrics {
     /** To make sure the setup is run only once */
@@ -63,6 +65,7 @@ class Metrics {
     /** The options passed to the setup */
     private _options: metricOptionsType = { prefix: '', timeout: 0 }
 
+    private _summaries: summariesType = {}
     /**
      * Setup the prom client for collecting metrics using the options passed
      */
@@ -105,6 +108,27 @@ class Metrics {
         }
     }
 
+    /**
+     * Get the summary for given name   
+     */
+    getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [ 0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary => {
+        try {
+            if (this._summaries[name]) {
+                return this._summaries[name]
+            }
+            this._summaries[name] = new client.Summary({
+                name: `${this.getOptions().prefix}${name}`,
+                help: help || `${name}_summary`,
+                labelNames,
+                maxAgeSeconds,
+                percentiles,
+                ageBuckets
+            })
+            return this._summaries[name]
+        } catch (e) {
+            throw new Error(`Couldn't get summary for ${name}`)
+        }
+    }
     /**
      * Get the metrics
      */
