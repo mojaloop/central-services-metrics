@@ -42,7 +42,10 @@ declare class Metrics {
     private _histograms;
     /** The options passed to the setup */
     private _options;
+    /** Object containing the summaries values */
     private _summaries;
+    /** Object containing the default registry */
+    private _register;
     /**
      * Setup the prom client for collecting metrics using the options passed
      */
@@ -67,5 +70,6 @@ declare class Metrics {
      * To check is it the Metrics already initiated
      */
     isInitiated: () => boolean;
+    getDefaultRegister: () => client.Registry;
 }
 export { Metrics, metricOptionsType };

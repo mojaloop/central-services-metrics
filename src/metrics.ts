@@ -29,6 +29,7 @@
 'use strict'
 
 import client = require('prom-client')
+import { throws } from 'assert'
 
 /**
  * Type that represents the options that are required for setup
@@ -65,7 +66,12 @@ class Metrics {
     /** The options passed to the setup */
     private _options: metricOptionsType = { prefix: '', timeout: 0 }
 
+    /** Object containing the summaries values */
     private _summaries: summariesType = {}
+
+    /** Object containing the default registry */
+    private _register: client.Registry = client.register
+
     /**
      * Setup the prom client for collecting metrics using the options passed
      */
@@ -84,6 +90,7 @@ class Metrics {
         }
         client.collectDefaultMetrics(normalisedOptions)
         client.register.metrics()
+        this._register = client.register
         this._alreadySetup = true
         return true
     }
@@ -148,6 +155,10 @@ class Metrics {
      */
     isInitiated = (): boolean => {
         return this._alreadySetup
+    }
+
+    getDefaultRegister = (): client.Registry => {
+        return this._register
     }
 }
 
