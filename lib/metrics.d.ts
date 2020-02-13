@@ -33,6 +33,7 @@ declare type metricOptionsType = {
     timeout: number;
     prefix: string;
     defaultLabels?: Map<string, string>;
+    register?: client.Registry;
 };
 /** Wrapper class for prom-client. */
 declare class Metrics {

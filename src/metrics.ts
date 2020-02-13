@@ -37,7 +37,8 @@ import { throws } from 'assert'
 type metricOptionsType = {
     timeout: number,
     prefix: string,
-    defaultLabels?: Map<string, string>
+    defaultLabels?: Map<string, string>,
+    register?: client.Registry
 }
 
 /**
@@ -77,6 +78,7 @@ class Metrics {
      */
     setup = (options: metricOptionsType): boolean => {
         if (this._alreadySetup) {
+            client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
             return false
         }
         this._options = options
@@ -89,7 +91,8 @@ class Metrics {
             client.register.setDefaultLabels(this._options.defaultLabels)
         }
         client.collectDefaultMetrics(normalisedOptions)
-        client.register.metrics()
+        // client.register.metrics()
+        client.AggregatorRegistry.setRegistries(this.getDefaultRegister())        
         this._register = client.register
         this._alreadySetup = true
         return true
