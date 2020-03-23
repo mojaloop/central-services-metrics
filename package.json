@@ -49,7 +49,7 @@
     "prom-client": "11.5.3"
   },
   "devDependencies": {
-    "@types/node": "13.7.1",
+    "@types/node": "13.9.3",
     "@types/tape": "4.2.34",
     "debug": "4.1.1",
     "faucet": "0.0.1",
