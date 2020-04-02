@@ -60,7 +60,7 @@
     "standard": "14.3.1",
     "tap-spec": "5.0.0",
     "tap-xunit": "2.4.1",
-    "tape": "4.13.0",
+    "tape": "4.13.2",
     "tapes": "4.1.0",
     "ts-node": "8.6.2",
     "tslint": "6.0.0",
