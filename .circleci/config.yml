@@ -111,11 +111,14 @@ jobs:
           name: Build typescript
           command: *defaults_Typescript
       - run:
+          name: Install tape, tapes and tap-xunit
+          command: npm install tape tapes tap-xunit tap-spec nyc
+      - run:
           name: Create dir for test results
           command: mkdir -p ./test/results
       - run:
           name: Execute unit tests
-          command: JEST_JUNIT_OUTPUT_DIR='./test/results' JEST_JUNIT_OUTPUT_NAME='junit.xml' npm run test:junit
+          command: npm -s run test:xunit > ./test/results/tape.xml
       - store_artifacts:
           path: ./test/results
           prefix: test
@@ -139,7 +142,7 @@ jobs:
           command: npm install tape tapes tap-xunit tap-spec nyc
       - run:
           name: Execute code coverage check
-          command: npm -s run test:coverage-check
+          command: npm -s run test:coverage
       - store_artifacts:
           path: coverage
           prefix: test
