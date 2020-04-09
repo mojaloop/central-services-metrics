@@ -49,25 +49,18 @@ Test('Metrics Class Test', (metricsTest: any) => {
         })
 
         setupTest.test('initialize the metrics object with default labels', async (test: any) => {
-            console.log('******STARTING********')
             try {
                 const metrics: Metrics = new Metrics()
                 let defaultLabels = new Map()
                 defaultLabels.set('serviceName', 'testService')
-                // const defaultLabels = {
-                //     serviceName: 'testService'
-                // }
+
                 const options: metricOptionsType = {
                     prefix: 'prefix2_',
                     timeout: 1000,
                     defaultLabels
                 }
-                console.log(`options=${JSON.stringify(options)}`)
-                console.log('******SET-START********')
                 let result = metrics.setup(options)
-                console.log('******SET-END********')
                 test.equal(result, true, 'Result match')
-                console.log(`options: ${JSON.stringify(metrics.getOptions())}`)
                 test.deepEqual(metrics.getOptions(), options, 'Options match')
                 test.end()
             } catch (e) {
@@ -96,6 +89,48 @@ Test('Metrics Class Test', (metricsTest: any) => {
         setupTest.end()
     })
 
+    metricsTest.test('isInitiated should', (isInitiatedTest: any) => {
+        isInitiatedTest.test('return false if metrics is not setup', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixIsInitiated1_',
+                    timeout: 1000
+                }
+                
+                // metrics.setup(options) <-- we skip this
+
+                let result = metrics.isInitiated()
+                test.equal(result, false, 'Metric should not be initialised')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        isInitiatedTest.test('return true if metrics is already setup', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixIsInitiated2_',
+                    timeout: 1000
+                }
+
+                metrics.setup(options) // <-- we setup metrics
+
+                let result = metrics.isInitiated()
+                test.equal(result, true, 'Metric should not be initialised')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        isInitiatedTest.end()
+    })
+
     metricsTest.test('getMetricsForPrometheus should', (getMetricsForPrometheusTest: any) => {
         getMetricsForPrometheusTest.test('return the metrics', async (test: any) => {
             try {
@@ -120,13 +155,34 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.ok(matches != -1, 'Found the result')
                 test.end()
             } catch (e) {
-                console.log(e)
                 test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
         })
 
         getMetricsForPrometheusTest.end()
+    })
+
+    metricsTest.test('getDefaultRegister should', (getDefaultRegisterTest: any) => {
+        getDefaultRegisterTest.test('return the default registry', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixGetDefaultRegisterTest1_',
+                    timeout: 1000
+                }
+                metrics.setup(options)
+                const result: any = metrics.getDefaultRegister()
+                test.ok(result, 'Check result is a valid object')
+                test.ok(result.contentType, 'Check contentType exists')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        getDefaultRegisterTest.end()
     })
 
     metricsTest.test('getOptions should', (getOptionsTest: any) => {
@@ -142,7 +198,6 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.equal(options, result, 'Results Match')
                 test.end()
             } catch (e) {
-                console.log(e)
                 test.fail(`Error Thrown - ${e}`)
                 test.end()
             }
@@ -258,7 +313,6 @@ Test('Metrics Class Test', (metricsTest: any) => {
         //         const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
 
         //         const metrics: Metrics = new Metrics()
-        //         console.log(JSON.stringify(metrics))
         //         const options: metricOptionsType = {
         //             prefix: 'prefix7_',
         //             timeout: 1000
@@ -278,6 +332,134 @@ Test('Metrics Class Test', (metricsTest: any) => {
         // })
 
         getHistogramTest.end()
+    })
+
+    metricsTest.test('getSummary should', (getSummaryTest: any) => {
+        getSummaryTest.test('return the summary', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const metricName = 'test_request_summary'
+                const options: metricOptionsType = {
+                    prefix: 'prefixSummary1_',
+                    timeout: 1000
+                }
+
+                const expected = { 
+                    maxAgeSeconds: 300,
+                    ageBuckets: 2, 
+                    name: `${options.prefix}${metricName}`, 
+                    help: 'Summary for http operation', 
+                    aggregator: 'sum', 
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
+                    hashMap: {}, 
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
+                    compressCount: 1000 
+                }
+
+                metrics.setup(options)
+                const result: object = metrics.getSummary(
+                    metricName,
+                    expected.help,
+                    expected.labelNames,
+                    expected.percentiles,
+                    expected.maxAgeSeconds,
+                    expected.ageBuckets
+                )
+                test.deepEqual(expected, result, 'Results Match')                
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        getSummaryTest.test('return the summary if help param is null', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const metricName = 'test_request_summary'
+                const options: metricOptionsType = {
+                    prefix: 'prefixSummary2_',
+                    timeout: 1000
+                }
+
+                const expected = { 
+                    maxAgeSeconds: 600,
+                    ageBuckets: 5, 
+                    name: `${options.prefix}${metricName}`, 
+                    help: 'test_request_summary_summary', 
+                    aggregator: 'sum', 
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
+                    hashMap: {}, 
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
+                    compressCount: 1000 
+                }
+
+                metrics.setup(options)
+                const result: object = metrics.getSummary(
+                    metricName,
+                    '',
+                    expected.labelNames,
+                    expected.percentiles
+                )
+
+                test.deepEqual(expected, result, 'Results Match')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        getSummaryTest.test('return the summary histogram', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const metricName = 'test_request_summary'
+                const options: metricOptionsType = {
+                    prefix: 'prefixSummary3_',
+                    timeout: 1000
+                }
+
+                const expected = { 
+                    maxAgeSeconds: 300,
+                    ageBuckets: 2, 
+                    name: `${options.prefix}${metricName}`, 
+                    help: 'Summary for http operation', 
+                    aggregator: 'sum', 
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
+                    hashMap: {}, 
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
+                    compressCount: 1000 
+                }
+
+                metrics.setup(options)
+
+                const firstResult: object = metrics.getSummary(
+                    metricName,
+                    expected.help,
+                    expected.labelNames,
+                    expected.percentiles,
+                    expected.maxAgeSeconds,
+                    expected.ageBuckets
+                )
+
+                const secondResult: object = metrics.getSummary(
+                    metricName,
+                    expected.help,
+                    expected.labelNames,
+                    expected.percentiles,
+                    expected.maxAgeSeconds,
+                    expected.ageBuckets
+                )
+
+                test.deepEqual(expected, secondResult, 'Results Match')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        getSummaryTest.end()
     })
 
     metricsTest.end()
