@@ -29,6 +29,7 @@
 'use strict'
 
 import client = require('prom-client')
+import { throws } from 'assert'
 
 /**
  * Type that represents the options that are required for setup
@@ -36,7 +37,8 @@ import client = require('prom-client')
 type metricOptionsType = {
     timeout: number,
     prefix: string,
-    defaultLabels?: Map<string, string>
+    defaultLabels?: Map<string, string>,
+    register?: client.Registry
 }
 
 /**
@@ -50,24 +52,37 @@ type normalisedMetricOptionsType = {
 /**
  * Object that holds the histogram values
  */
+// Required for Prom-Client v12.x 
+// type histogramsType = { [key: string]: client.Histogram<string> }
+// type summariesType = { [key: string]: client.Summary<string> }
+
+// Required for Prom-Client v11.5.x 
 type histogramsType = { [key: string]: client.Histogram }
+type summariesType = { [key: string]: client.Summary }
 
 /** Wrapper class for prom-client. */
 class Metrics {
     /** To make sure the setup is run only once */
     private _alreadySetup: boolean = false
 
+    /** The options passed to the setup */
+    private _options: metricOptionsType = { prefix: '', timeout: 0 }
+
+    /** Object containing the default registry */
+    private _register: client.Registry = client.register
+
     /** Object containing the histogram values */
     private _histograms: histogramsType = {}
 
-    /** The options passed to the setup */
-    private _options: metricOptionsType = { prefix: '', timeout: 0 }
+    /** Object containing the summaries values */
+    private _summaries: summariesType = {}
 
     /**
      * Setup the prom client for collecting metrics using the options passed
      */
     setup = (options: metricOptionsType): boolean => {
         if (this._alreadySetup) {
+            client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
             return false
         }
         this._options = options
@@ -79,16 +94,26 @@ class Metrics {
         if(this._options.defaultLabels !== undefined){
             client.register.setDefaultLabels(this._options.defaultLabels)
         }
+
+        // configure detault metrics
         client.collectDefaultMetrics(normalisedOptions)
-        client.register.metrics()
+
+        // set default registry
+        // client.AggregatorRegistry.setRegistries(this.getDefaultRegister())        
+        this._register = client.register
+
+        // set setup flag
         this._alreadySetup = true
+
+        // return true if we are setup
         return true
     }
 
     /**
      * Get the histogram values for given name
      */
-    getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram => {
+    // getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram<string> => { // <-- required for Prom-Client v12.x
+    getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram => { // <-- required for Prom-Client v11.x
         try {
             if (this._histograms[name]) {
                 return this._histograms[name]
@@ -105,6 +130,28 @@ class Metrics {
         }
     }
 
+    /**
+     * Get the summary for given name   
+     */
+    // getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [ 0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary<string> => { // <-- required for Prom-Client v12.x
+    getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [ 0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary => { // <-- required for Prom-Client v11.x
+        try {
+            if (this._summaries[name]) {
+                return this._summaries[name]
+            }
+            this._summaries[name] = new client.Summary({
+                name: `${this.getOptions().prefix}${name}`,
+                help: help || `${name}_summary`,
+                labelNames,
+                maxAgeSeconds,
+                percentiles,
+                ageBuckets
+            })
+            return this._summaries[name]
+        } catch (e) {
+            throw new Error(`Couldn't get summary for ${name}`)
+        }
+    }
     /**
      * Get the metrics
      */
@@ -124,6 +171,10 @@ class Metrics {
      */
     isInitiated = (): boolean => {
         return this._alreadySetup
+    }
+
+    getDefaultRegister = (): client.Registry => {
+        return this._register
     }
 }
 
