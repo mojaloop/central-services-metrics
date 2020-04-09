@@ -1,28 +1,34 @@
 {
   "name": "@mojaloop/central-services-metrics",
-  "version": "9.1.2-snapshot",
+  "version": "9.5.0",
   "description": "Shared code for metrics generation",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "/config",
+    "/dist",
+    "/protos"
+  ],
   "scripts": {
     "test": "npm run test:unit | faucet",
     "pretest": "npm run build",
     "standard": "standard",
-    "build": "tsc; standard --fix",
+    "build": "tsc",
     "watch": "tsc -w",
     "test:unit": "ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts'",
     "test:xunit": "npm run test:unit | tap-xunit",
     "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text",
-    "git:stagelib": "git add lib/*ts; git add lib/*.map; git add lib/*.js",
     "git:standardFix": "standard --fix",
     "audit:resolve": "SHELL=sh resolve-audit",
-    "audit:check": "SHELL=sh check-audit"
+    "audit:check": "SHELL=sh check-audit",
+    "dep:check": "npx ncu -e 2",
+    "dep:update": "npx ncu -u"
   },
   "pre-commit": [
+    "dep:check",
     "build",
-    "git:standardFix",
-    "test:unit",
-    "git:stagelib"
+    "standard",
+    "test:unit"
   ],
   "repository": {
     "type": "git",
@@ -33,9 +39,12 @@
     "central",
     "services"
   ],
-  "author": "shashi165",
+  "author": "ModusBox",
   "contributors": [
-    "Georgi Georgiev <georgi.georgiev@modusbox.com>"
+    "Shashikant Hirugade <shashikant.hirugade@modusbox.com>",
+    "Georgi Georgiev <georgi.georgiev@modusbox.com>",
+    "Valentin Genev <valentin.genev@modusbox.com>",
+    "Miguel de Barros <miguel.debarros@modusbox.com>"
   ],
   "license": "Apache-2.0",
   "bugs": {
@@ -46,22 +55,23 @@
     "prom-client": "11.5.3"
   },
   "devDependencies": {
-    "@types/node": "12.11.7",
-    "@types/tape": "4.2.33",
+    "@types/node": "13.11.1",
+    "@types/tape": "4.2.34",
     "debug": "4.1.1",
     "faucet": "0.0.1",
-    "npm-audit-resolver": "2.1.0",
-    "nyc": "14.1.1",
+    "npm-audit-resolver": "2.2.0",
+    "npm-check-updates": "4.1.2",
+    "nyc": "15.0.1",
     "pre-commit": "1.2.2",
-    "standard": "14.3.1",
+    "standard": "14.3.3",
     "tap-spec": "5.0.0",
     "tap-xunit": "2.4.1",
-    "tape": "4.11.0",
+    "tape": "4.13.2",
     "tapes": "4.1.0",
-    "ts-node": "8.4.1",
-    "tslint": "5.20.0",
-    "typedoc": "0.15.0",
-    "typescript": "3.5.3"
+    "ts-node": "8.8.2",
+    "tslint": "6.1.1",
+    "typedoc": "0.17.4",
+    "typescript": "3.8.3"
   },
   "nyc": {
     "include": [
@@ -70,6 +80,11 @@
     ],
     "extension": [
       ".ts"
+    ]
+  },
+  "standard": {
+    "ignore": [
+      "/dist"
     ]
   }
 }
