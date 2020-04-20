@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@types/node": "13.11.1",
-    "@types/tape": "4.2.34",
+    "@types/tape": "4.13.0",
     "debug": "4.1.1",
     "faucet": "0.0.1",
     "npm-audit-resolver": "2.2.0",
