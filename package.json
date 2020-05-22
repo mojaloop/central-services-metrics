@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-metrics",
-  "version": "9.5.0",
+  "version": "10.2.0",
   "description": "Shared code for metrics generation",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,8 +19,8 @@
     "test:xunit": "npm run test:unit | tap-xunit",
     "test:coverage": "nyc --reporter=lcov --require ts-node/register tape test/unit/**/*.test.{ts,js} | tap-spec; nyc report ---reporter=text",
     "git:standardFix": "standard --fix",
-    "audit:resolve": "SHELL=sh resolve-audit",
-    "audit:check": "SHELL=sh check-audit",
+    "audit:resolve": "SHELL=sh resolve-audit --production",
+    "audit:check": "SHELL=sh check-audit --production",
     "dep:check": "npx ncu -e 2",
     "dep:update": "npx ncu -u"
   },
@@ -55,23 +55,23 @@
     "prom-client": "11.5.3"
   },
   "devDependencies": {
-    "@types/node": "13.11.1",
-    "@types/tape": "4.2.34",
+    "@types/node": "14.0.5",
+    "@types/tape": "4.13.0",
     "debug": "4.1.1",
     "faucet": "0.0.1",
     "npm-audit-resolver": "2.2.0",
-    "npm-check-updates": "4.1.2",
+    "npm-check-updates": "6.0.1",
     "nyc": "15.0.1",
     "pre-commit": "1.2.2",
-    "standard": "14.3.3",
+    "standard": "14.3.4",
     "tap-spec": "5.0.0",
     "tap-xunit": "2.4.1",
-    "tape": "4.13.2",
+    "tape": "5.0.0",
     "tapes": "4.1.0",
-    "ts-node": "8.8.2",
-    "tslint": "6.1.1",
-    "typedoc": "0.17.4",
-    "typescript": "3.8.3"
+    "ts-node": "8.10.1",
+    "tslint": "6.1.2",
+    "typedoc": "0.17.7",
+    "typescript": "3.9.3"
   },
   "nyc": {
     "include": [
