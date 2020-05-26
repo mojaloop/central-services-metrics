@@ -231,7 +231,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const result: object = metrics.getHistogram('test_request',
                     'Histogram for http operation',
                     ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-                test.deepEqual(expected, result, 'Results Match')
+                test.deepLooseEqual(expected, result, 'Results Match')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -263,7 +263,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const result: object = metrics.getHistogram('test_request',
                     '',
                     ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-                test.deepEqual(expected, result, 'Results Match')
+                test.deepLooseEqual(expected, result, 'Results Match')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -298,7 +298,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const secondResult: object = metrics.getHistogram('test_request',
                     'Histogram for http operation',
                     ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-                test.deepEqual(expected, secondResult, 'Results Match')
+                test.deepLooseEqual(expected, secondResult, 'Results Match')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -365,7 +365,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     expected.maxAgeSeconds,
                     expected.ageBuckets
                 )
-                test.deepEqual(expected, result, 'Results Match')                
+                test.deepLooseEqual(expected, result, 'Results Match')                
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -402,7 +402,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     expected.percentiles
                 )
 
-                test.deepEqual(expected, result, 'Results Match')
+                test.deepLooseEqual(expected, result, 'Results Match')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -451,7 +451,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     expected.ageBuckets
                 )
 
-                test.deepEqual(expected, secondResult, 'Results Match')
+                test.deepLooseEqual(expected, secondResult, 'Results Match')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
