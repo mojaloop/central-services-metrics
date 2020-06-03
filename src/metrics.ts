@@ -56,9 +56,14 @@ type normalisedMetricOptionsType = {
 // type histogramsType = { [key: string]: client.Histogram<string> }
 // type summariesType = { [key: string]: client.Summary<string> }
 
+interface gaugeObserver extends client.Gauge {
+    observe(labels: client.labelValues, value: number, timestamp?: number | Date): void
+}
+
 // Required for Prom-Client v11.5.x 
 type histogramsType = { [key: string]: client.Histogram }
 type summariesType = { [key: string]: client.Summary }
+type gaugesType = { [key: string]: gaugeObserver }
 
 /** Wrapper class for prom-client. */
 class Metrics {
@@ -76,6 +81,9 @@ class Metrics {
 
     /** Object containing the summaries values */
     private _summaries: summariesType = {}
+
+    /** Object containing the gauges values */
+    private _gauges: gaugesType = {}
 
     /**
      * Setup the prom client for collecting metrics using the options passed
@@ -150,6 +158,26 @@ class Metrics {
             return this._summaries[name]
         } catch (e) {
             throw new Error(`Couldn't get summary for ${name}`)
+        }
+    }
+
+    /**
+     * Get gauge for given name 
+     */
+    getGauge = (name: string, help?: string, labelNames?: string[]): gaugeObserver => {
+        try {
+            if (this._gauges[name]) {
+                return this._gauges[name]
+            }
+            const gauge = new client.Gauge({
+                name: `${this.getOptions().prefix}${name}`,
+                help: help || `${name}_gauge`,
+                labelNames
+            })
+            this._gauges[name] = Object.assign(gauge, { observe: gauge.set })
+            return this._gauges[name]
+        } catch (e) {
+            throw new Error(`Couldn't get gauge for ${name}`)
         }
     }
     /**
