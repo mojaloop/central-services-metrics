@@ -107,7 +107,7 @@ class Metrics {
         client.collectDefaultMetrics(normalisedOptions)
 
         // set default registry
-        // client.AggregatorRegistry.setRegistries(this.getDefaultRegister())        
+        client.AggregatorRegistry.setRegistries(this.getDefaultRegister())        
         this._register = client.register
 
         // set setup flag
