@@ -2,6 +2,14 @@
 version: 2.1
 
 ##
+# orbs
+#
+# Orbs used in this pipeline
+###
+orbs:
+  pr-tools: mojaloop/pr-tools@0.1.8
+
+##
 # defaults
 #
 # YAML defaults templates, in alphabetical order
@@ -277,6 +285,8 @@ workflows:
   version: 2
   build_and_test:
     jobs:
+      - pr-tools/pr-title-check:
+          context: org-global
       - setup:
           context: org-global
           filters:
