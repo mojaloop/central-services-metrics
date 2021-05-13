@@ -25,7 +25,5 @@
 
 'use strict'
 
-
 import metrics = require('./metrics')
 export = new metrics.Metrics()
-

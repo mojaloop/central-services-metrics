@@ -26,6 +26,7 @@
 'use strict'
 
 const Test = require('tapes')(require('tape'))
+import { Histogram } from "prom-client"
 import { Metrics, metricOptionsType } from "../../src/metrics"
 
 Test('Metrics Class Test', (metricsTest: any) => {
@@ -150,7 +151,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 const expected: string = 'prefix3_test_metric_count{test_label="true"} 1'
 
-                let result = metrics.getMetricsForPrometheus()
+                let result = await metrics.getMetricsForPrometheus()
                 let matches = result.indexOf(expected)
                 test.ok(matches != -1, 'Found the result')
                 test.end()
@@ -215,12 +216,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     timeout: 1000
                 }
                 const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
-                const expected = {
+                const histogramConfig = {
+                    constructor: 'Histogram',
                     name: 'prefix5_test_request',
                     help: 'Histogram for http operation',
                     aggregator: 'sum',
-                    upperBounds: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
-                    bucketValues: { '1': 0, '2': 0, '3': 0, '0.01': 0, '0.05': 0, '0.1': 0, '0.5': 0 },
+                    upperBounds: buckets,
+                    buckets,
+                    bucketValues: { '0.010': 0, '0.050': 0, '0.1': 0, '0.5': 0, '1':0 , '2':0 , '3':0 },
                     sum: 0,
                     count: 0,
                     hashMap: {},
@@ -228,10 +231,11 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
 
                 metrics.setup(options)
-                const result: object = metrics.getHistogram('test_request',
-                    'Histogram for http operation',
-                    ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-                test.deepLooseEqual(expected, result, 'Results Match')
+                const result: Histogram<string> = metrics.getHistogram('test_request',
+                    histogramConfig.help,
+                    histogramConfig.labelNames, 
+                    histogramConfig.buckets)
+                test.equal(Object.getPrototypeOf(result).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -239,7 +243,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
             }
         })
 
-        getHistogramTest.test('return the histogram if help param is null', async (test: any) => {
+        getHistogramTest.test('return the histogram if help param is an empty string', async (test: any) => {
             try {
                 const metrics: Metrics = new Metrics()
                 const options: metricOptionsType = {
@@ -247,11 +251,13 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     timeout: 100
                 }
                 const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
-                const expected = {
+                const histogramConfig = {
+                    constructor: 'Histogram',
                     name: 'prefix8_test_request',
-                    help: 'test_request_histogram',
+                    help: '',
                     aggregator: 'sum',
-                    upperBounds: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
+                    upperBounds: buckets,
+                    buckets,
                     bucketValues: { '1': 0, '2': 0, '3': 0, '0.01': 0, '0.05': 0, '0.1': 0, '0.5': 0 },
                     sum: 0,
                     count: 0,
@@ -261,12 +267,47 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 metrics.setup(options)
                 const result: object = metrics.getHistogram('test_request',
-                    '',
-                    ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-                test.deepLooseEqual(expected, result, 'Results Match')
+                    histogramConfig.help,
+                    histogramConfig.labelNames, 
+                    histogramConfig.buckets)
+                test.fail('Expected an error to be thrown with help param being empty or null')
                 test.end()
             } catch (e) {
-                test.fail(`Error Thrown - ${e}`)
+                test.equal(e.message, 'Couldn\'t get metrics histogram for test_request')
+                test.end()
+            }
+        })
+
+        getHistogramTest.test('return the histogram if help param are null', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefix8_1_',
+                    timeout: 100
+                }
+                const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
+                const histogramConfig = {
+                    constructor: 'Histogram',
+                    name: 'prefix8_1_test_request',
+                    help: '',
+                    aggregator: 'sum',
+                    upperBounds: buckets,
+                    buckets,
+                    bucketValues: { '1': 0, '2': 0, '3': 0, '0.01': 0, '0.05': 0, '0.1': 0, '0.5': 0 },
+                    sum: 0,
+                    count: 0,
+                    hashMap: {},
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
+
+                metrics.setup(options)
+                const result: object = metrics.getHistogram(
+                    'test_request'
+                )
+                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.end()
+            } catch (e) {
+                test.equal(e.message, 'Couldn\'t get metrics histogram for test_request')
                 test.end()
             }
         })
@@ -279,11 +320,13 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     timeout: 1000
                 }
                 const buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 3]
-                const expected = {
+                const histogramConfig = {
+                    constructor: 'Histogram',
                     name: 'prefix6_test_request',
                     help: 'Histogram for http operation',
                     aggregator: 'sum',
-                    upperBounds: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
+                    upperBounds: buckets,
+                    buckets,
                     bucketValues: { '1': 0, '2': 0, '3': 0, '0.01': 0, '0.05': 0, '0.1': 0, '0.5': 0 },
                     sum: 0,
                     count: 0,
@@ -293,12 +336,15 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 metrics.setup(options)
                 const firstResult: object = metrics.getHistogram('test_request',
-                    'Histogram for http operation',
-                    ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
+                    histogramConfig.help,
+                    histogramConfig.labelNames, 
+                    histogramConfig.buckets)
                 const secondResult: object = metrics.getHistogram('test_request',
-                    'Histogram for http operation',
-                    ['success', 'fsp', 'operation', 'source', 'destination'], buckets)
-                test.deepLooseEqual(expected, secondResult, 'Results Match')
+                    histogramConfig.help,
+                    histogramConfig.labelNames, 
+                    histogramConfig.buckets)
+                test.equal(Object.getPrototypeOf(firstResult).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')
+                test.equal(Object.getPrototypeOf(secondResult).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')   
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -344,7 +390,8 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     timeout: 1000
                 }
 
-                const expected = { 
+                const summaryConfig = {
+                    constructor: 'Summary',
                     maxAgeSeconds: 300,
                     ageBuckets: 2, 
                     name: `${options.prefix}${metricName}`, 
@@ -359,13 +406,13 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.setup(options)
                 const result: object = metrics.getSummary(
                     metricName,
-                    expected.help,
-                    expected.labelNames,
-                    expected.percentiles,
-                    expected.maxAgeSeconds,
-                    expected.ageBuckets
+                    summaryConfig.help,
+                    summaryConfig.labelNames,
+                    summaryConfig.percentiles,
+                    summaryConfig.maxAgeSeconds,
+                    summaryConfig.ageBuckets
                 )
-                test.deepLooseEqual(expected, result, 'Results Match')                
+                test.equal(Object.getPrototypeOf(result).constructor.name, summaryConfig.constructor, 'Summary object is not valid')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -373,7 +420,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
             }
         })
 
-        getSummaryTest.test('return the summary if help param is null', async (test: any) => {
+        getSummaryTest.test('return the summary if help param is empty string', async (test: any) => {
             try {
                 const metrics: Metrics = new Metrics()
                 const metricName = 'test_request_summary'
@@ -382,11 +429,12 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     timeout: 1000
                 }
 
-                const expected = { 
+                const summaryConfig = {
+                    constructor: 'Summary',
                     maxAgeSeconds: 600,
                     ageBuckets: 5, 
                     name: `${options.prefix}${metricName}`, 
-                    help: 'test_request_summary_summary', 
+                    help: '', 
                     aggregator: 'sum', 
                     percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
                     hashMap: {}, 
@@ -397,15 +445,50 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.setup(options)
                 const result: object = metrics.getSummary(
                     metricName,
-                    '',
-                    expected.labelNames,
-                    expected.percentiles
+                    summaryConfig.help,
+                    summaryConfig.labelNames,
+                    summaryConfig.percentiles
                 )
 
-                test.deepLooseEqual(expected, result, 'Results Match')
+                test.fail('Expected an error to be thrown with help param being empty or null')
                 test.end()
             } catch (e) {
-                test.fail(`Error Thrown - ${e}`)
+                test.equal(e.message, 'Couldn\'t get summary for test_request_summary')
+                test.end()
+            }
+        })
+
+        getSummaryTest.test('return the summary if help param are null', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const metricName = 'test_request_summary'
+                const options: metricOptionsType = {
+                    prefix: 'prefixSummary2_1_',
+                    timeout: 1000
+                }
+
+                const summaryConfig = {
+                    constructor: 'Summary',
+                    maxAgeSeconds: 600,
+                    ageBuckets: 5, 
+                    name: `${options.prefix}${metricName}`, 
+                    help: '', 
+                    aggregator: 'sum', 
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
+                    hashMap: {}, 
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
+                    compressCount: 1000 
+                }
+
+                metrics.setup(options)
+                const result: object = metrics.getSummary(
+                    metricName
+                )
+
+                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.end()
+            } catch (e) {
+                test.equal(e.message, 'Couldn\'t get summary for test_request_summary')
                 test.end()
             }
         })
@@ -419,7 +502,8 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     timeout: 1000
                 }
 
-                const expected = { 
+                const summaryConfig = {
+                    constructor: 'Summary',
                     maxAgeSeconds: 300,
                     ageBuckets: 2, 
                     name: `${options.prefix}${metricName}`, 
@@ -435,23 +519,24 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 const firstResult: object = metrics.getSummary(
                     metricName,
-                    expected.help,
-                    expected.labelNames,
-                    expected.percentiles,
-                    expected.maxAgeSeconds,
-                    expected.ageBuckets
+                    summaryConfig.help,
+                    summaryConfig.labelNames,
+                    summaryConfig.percentiles,
+                    summaryConfig.maxAgeSeconds,
+                    summaryConfig.ageBuckets
                 )
 
                 const secondResult: object = metrics.getSummary(
                     metricName,
-                    expected.help,
-                    expected.labelNames,
-                    expected.percentiles,
-                    expected.maxAgeSeconds,
-                    expected.ageBuckets
+                    summaryConfig.help,
+                    summaryConfig.labelNames,
+                    summaryConfig.percentiles,
+                    summaryConfig.maxAgeSeconds,
+                    summaryConfig.ageBuckets
                 )
 
-                test.deepLooseEqual(expected, secondResult, 'Results Match')
+                test.equal(Object.getPrototypeOf(firstResult).constructor.name, summaryConfig.constructor, 'Summary object is not valid')
+                test.equal(Object.getPrototypeOf(secondResult).constructor.name, summaryConfig.constructor, 'Summary object is not valid')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
