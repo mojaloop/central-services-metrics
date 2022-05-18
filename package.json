@@ -22,13 +22,12 @@
     "test:xunit": "npx ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts' | tap-xunit > ./test/results/xunit.xml",
     "test:coverage": "nyc --reporter=lcov --reporter=text-summary --require ts-node/register tape test/unit/**/*.test.{ts,js}",
     "test:coverage-check": "npm run test:coverage && nyc check-coverage",
-    "git:standardFix": "standard --fix",
     "audit:resolve": "npx resolve-audit --production",
     "audit:check": "npx check-audit --production",
     "dep:check": "npx ncu -e 2",
     "dep:update": "npx ncu -u",
-    "release": "standard-version --no-verify --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
-    "snapshot": "standard-version --no-verify --skip.changelog --prerelease snapshot --releaseCommitMessageFormat 'chore(snapshot): {{currentTag}}'"
+    "release": "npx standard-version --no-verify --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
+    "snapshot": "npx standard-version --no-verify --skip.changelog --prerelease snapshot --releaseCommitMessageFormat 'chore(snapshot): {{currentTag}}'"
   },
   "pre-commit": [
     "dep:check",
@@ -70,6 +69,7 @@
     "pre-commit": "1.2.2",
     "replace": "^1.2.1",
     "standard": "17.0.0",
+    "standard-version": "^9.5.0",
     "tap-spec": "^5.0.0",
     "tap-xunit": "2.4.1",
     "tape": "5.5.3",
