@@ -67,6 +67,7 @@
     "npm-check-updates": "13.0.1",
     "nyc": "15.1.0",
     "pre-commit": "1.2.2",
+    "replace": "^1.2.1",
     "standard": "17.0.0",
     "tap-spec": "^5.0.0",
     "tap-xunit": "2.4.1",
@@ -97,7 +98,7 @@
   },
   "standard-version": {
     "scripts": {
-      "postchangelog": "replace '\\[mojaloop\/#(\\d+)\\]\\(https:\/\/github.com\/mojaloop\/(.*)\/issues\/(\\d+)\\)' '[mojaloop/#$1](https://github.com/mojaloop/project/issues/$1)' CHANGELOG.md"
+      "postchangelog": "npx replace '\\[mojaloop/#(\\d+)\\]\\(https://github.com/mojaloop/(.*)/issues/(\\d+)\\)' '[mojaloop/#$1](https://github.com/mojaloop/project/issues/$1)' CHANGELOG.md"
     }
   }
 }
