@@ -12,6 +12,7 @@
   "scripts": {
     "test": "npm run test:unit",
     "pretest": "npm run build",
+    "prepublishOnly": "npm run build",
     "standard": "npx ts-standard",
     "standard:fix": "npx ts-standard --fix",
     "lint": "npm run standard",
