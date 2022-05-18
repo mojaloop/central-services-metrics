@@ -72,3 +72,9 @@ docs/
 # idea directory
 .idea/**
 **/*.iml
+
+# Ignore test results
+**/test/results/*
+
+# Ignore general
+**/*.IGNORE.*
