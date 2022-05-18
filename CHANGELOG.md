@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.0.1](https://github.com/mojaloop/central-services-metrics/compare/v12.0.0...v12.0.1) (2022-05-18)
+
+
+### Bug Fixes
+
+* publish lib is missing dist ([3df284e](https://github.com/mojaloop/central-services-metrics/commit/3df284ef9c49675c702395c697f67b0133a4aa67))
+
 ## [12.0.0](https://github.com/mojaloop/central-services-metrics/compare/v11.0.0...v12.0.0) (2022-05-18)
 
 
