@@ -2,6 +2,9 @@
   "name": "@mojaloop/central-services-metrics",
   "version": "12.0.4",
   "description": "Shared code for metrics generation",
+  "engines": {
+    "node": "=16.x"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
