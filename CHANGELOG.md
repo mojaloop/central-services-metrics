@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.0.3](https://github.com/mojaloop/central-services-metrics/compare/v12.0.2...v12.0.3) (2022-05-19)
+
+
+### Bug Fixes
+
+* updated postchangelog to correctly update the project issue URL ([3db7d41](https://github.com/mojaloop/central-services-metrics/commit/3db7d410655238610f154ac5cb297b95cd48cb2b))
+
 ### [12.0.2](https://github.com/mojaloop/central-services-metrics/compare/v12.0.1...v12.0.2) (2022-05-18)
 
 
