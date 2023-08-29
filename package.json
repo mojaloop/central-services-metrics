@@ -65,7 +65,7 @@
     "@types/tape": "^5.6.0",
     "audit-ci": "^6.6.1",
     "debug": "4.3.4",
-    "npm-check-updates": "16.13.1",
+    "npm-check-updates": "16.13.2",
     "nyc": "15.1.0",
     "pre-commit": "1.2.2",
     "replace": "^1.2.2",
