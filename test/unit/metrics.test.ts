@@ -98,7 +98,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     prefix: 'prefixIsInitiated1_',
                     timeout: 1000
                 }
-                
+
                 // metrics.setup(options) <-- we skip this
 
                 let result = metrics.isInitiated()
@@ -207,6 +207,22 @@ Test('Metrics Class Test', (metricsTest: any) => {
         getOptionsTest.end()
     })
 
+    metricsTest.test('getClient should', (getOptionsTest: any) => {
+        getOptionsTest.test('return the client', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const result = metrics.getClient()
+                test.ok(result, 'Return client')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        getOptionsTest.end()
+    })
+
     metricsTest.test('getHistogram should', (getHistogramTest: any) => {
         getHistogramTest.test('return the histogram', async (test: any) => {
             try {
@@ -233,7 +249,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.setup(options)
                 const result: Histogram<string> = metrics.getHistogram('test_request',
                     histogramConfig.help,
-                    histogramConfig.labelNames, 
+                    histogramConfig.labelNames,
                     histogramConfig.buckets)
                 test.equal(Object.getPrototypeOf(result).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')
                 test.end()
@@ -268,7 +284,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.setup(options)
                 const result: object = metrics.getHistogram('test_request',
                     histogramConfig.help,
-                    histogramConfig.labelNames, 
+                    histogramConfig.labelNames,
                     histogramConfig.buckets)
                 test.fail('Expected an error to be thrown with help param being empty or null')
                 test.end()
@@ -337,14 +353,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.setup(options)
                 const firstResult: object = metrics.getHistogram('test_request',
                     histogramConfig.help,
-                    histogramConfig.labelNames, 
+                    histogramConfig.labelNames,
                     histogramConfig.buckets)
                 const secondResult: object = metrics.getHistogram('test_request',
                     histogramConfig.help,
-                    histogramConfig.labelNames, 
+                    histogramConfig.labelNames,
                     histogramConfig.buckets)
                 test.equal(Object.getPrototypeOf(firstResult).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')
-                test.equal(Object.getPrototypeOf(secondResult).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')   
+                test.equal(Object.getPrototypeOf(secondResult).constructor.name, histogramConfig.constructor, 'Histogram object is not valid')
                 test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
@@ -393,14 +409,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const summaryConfig = {
                     constructor: 'Summary',
                     maxAgeSeconds: 300,
-                    ageBuckets: 2, 
-                    name: `${options.prefix}${metricName}`, 
-                    help: 'Summary for http operation', 
-                    aggregator: 'sum', 
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
-                    hashMap: {}, 
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
-                    compressCount: 1000 
+                    ageBuckets: 2,
+                    name: `${options.prefix}${metricName}`,
+                    help: 'Summary for http operation',
+                    aggregator: 'sum',
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    hashMap: {},
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    compressCount: 1000
                 }
 
                 metrics.setup(options)
@@ -432,14 +448,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const summaryConfig = {
                     constructor: 'Summary',
                     maxAgeSeconds: 600,
-                    ageBuckets: 5, 
-                    name: `${options.prefix}${metricName}`, 
-                    help: '', 
-                    aggregator: 'sum', 
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
-                    hashMap: {}, 
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
-                    compressCount: 1000 
+                    ageBuckets: 5,
+                    name: `${options.prefix}${metricName}`,
+                    help: '',
+                    aggregator: 'sum',
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    hashMap: {},
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    compressCount: 1000
                 }
 
                 metrics.setup(options)
@@ -470,14 +486,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const summaryConfig = {
                     constructor: 'Summary',
                     maxAgeSeconds: 600,
-                    ageBuckets: 5, 
-                    name: `${options.prefix}${metricName}`, 
-                    help: '', 
-                    aggregator: 'sum', 
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
-                    hashMap: {}, 
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
-                    compressCount: 1000 
+                    ageBuckets: 5,
+                    name: `${options.prefix}${metricName}`,
+                    help: '',
+                    aggregator: 'sum',
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    hashMap: {},
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    compressCount: 1000
                 }
 
                 metrics.setup(options)
@@ -505,14 +521,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 const summaryConfig = {
                     constructor: 'Summary',
                     maxAgeSeconds: 300,
-                    ageBuckets: 2, 
-                    name: `${options.prefix}${metricName}`, 
-                    help: 'Summary for http operation', 
-                    aggregator: 'sum', 
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ], 
-                    hashMap: {}, 
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ], 
-                    compressCount: 1000 
+                    ageBuckets: 2,
+                    name: `${options.prefix}${metricName}`,
+                    help: 'Summary for http operation',
+                    aggregator: 'sum',
+                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    hashMap: {},
+                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    compressCount: 1000
                 }
 
                 metrics.setup(options)

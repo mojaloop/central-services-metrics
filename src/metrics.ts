@@ -38,6 +38,7 @@ interface metricOptionsType {
   prefix: string
   defaultLabels?: Map<string, string>
   register?: client.Registry
+  defaultMetrics?: boolean
 }
 
 /**
@@ -95,7 +96,7 @@ class Metrics {
     }
 
     // configure detault metrics
-    client.collectDefaultMetrics(normalisedOptions)
+    if (options.defaultMetrics !== false) client.collectDefaultMetrics(normalisedOptions)
 
     // set default registry
     // client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
@@ -175,6 +176,10 @@ class Metrics {
 
   getDefaultRegister = (): client.Registry => {
     return this._register
+  }
+
+  getClient = (): typeof client => {
+    return client
   }
 }
 
