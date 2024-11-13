@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.1.0](https://github.com/mojaloop/central-services-metrics/compare/v12.0.8...v12.1.0) (2024-11-13)
+
+
+### Features
+
+* add defaultMetrics option to metrics configuration and expose prom-client ([#172](https://github.com/mojaloop/central-services-metrics/issues/172)) ([61ba9ad](https://github.com/mojaloop/central-services-metrics/commit/61ba9ad7f8a7c7f2a961405dcd7354ea556b5c43))
+
 ### [12.0.8](https://github.com/mojaloop/central-services-metrics/compare/v12.0.7...v12.0.8) (2023-08-29)
 
 ### [12.0.7](https://github.com/mojaloop/central-services-metrics/compare/v12.0.6...v12.0.7) (2023-08-23)
