@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.2.0](https://github.com/mojaloop/central-services-metrics/compare/v12.1.0...v12.2.0) (2024-11-21)
+
+
+### Features
+
+* add hapi metrics plugin ([#173](https://github.com/mojaloop/central-services-metrics/issues/173)) ([ae8d140](https://github.com/mojaloop/central-services-metrics/commit/ae8d140b26e78866c910236d890a2e4d0f95b6b4))
+
 ## [12.1.0](https://github.com/mojaloop/central-services-metrics/compare/v12.0.8...v12.1.0) (2024-11-13)
 
 
