@@ -242,7 +242,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     aggregator: 'sum',
                     upperBounds: buckets,
                     buckets,
-                    bucketValues: { '0.010': 0, '0.050': 0, '0.1': 0, '0.5': 0, '1':0 , '2':0 , '3':0 },
+                    bucketValues: { '0.010': 0, '0.050': 0, '0.1': 0, '0.5': 0, '1': 0, '2': 0, '3': 0 },
                     sum: 0,
                     count: 0,
                     hashMap: {},
@@ -416,9 +416,9 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     name: `${options.prefix}${metricName}`,
                     help: 'Summary for http operation',
                     aggregator: 'sum',
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    percentiles: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
                     hashMap: {},
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination'],
                     compressCount: 1000
                 }
 
@@ -455,9 +455,9 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     name: `${options.prefix}${metricName}`,
                     help: '',
                     aggregator: 'sum',
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    percentiles: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
                     hashMap: {},
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination'],
                     compressCount: 1000
                 }
 
@@ -493,9 +493,9 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     name: `${options.prefix}${metricName}`,
                     help: '',
                     aggregator: 'sum',
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    percentiles: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
                     hashMap: {},
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination'],
                     compressCount: 1000
                 }
 
@@ -528,9 +528,9 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     name: `${options.prefix}${metricName}`,
                     help: 'Summary for http operation',
                     aggregator: 'sum',
-                    percentiles: [ 0.01, 0.05, 0.1, 0.5, 1, 2, 3 ],
+                    percentiles: [0.01, 0.05, 0.1, 0.5, 1, 2, 3],
                     hashMap: {},
-                    labelNames: [ 'success', 'fsp', 'operation', 'source', 'destination' ],
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination'],
                     compressCount: 1000
                 }
 
@@ -577,7 +577,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
                 metrics.setup(options)
                 const server = new Server({ port: 0 })
-                await server.register({plugin: metrics.plugin})
+                await server.register(metrics.plugin)
                 server.route({
                     method: 'GET',
                     path: '/test',
@@ -590,8 +590,8 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 })
                 await server.start()
                 test.ok(server, 'Server is started')
-                await server.inject({ method: 'GET',url: '/test' })
-                await server.inject({method: 'GET', url: '/coverage'})
+                await server.inject({ method: 'GET', url: '/test' })
+                await server.inject({ method: 'GET', url: '/coverage' })
                 const metricsResponse = await server.inject({
                     method: 'GET',
                     url: '/metrics'
@@ -615,11 +615,12 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.getDefaultRegister().clear()
                 const options: metricOptionsType = {
                     prefix: 'plugin2_',
-                    timeout: 1000
+                    timeout: 1000,
+                    maxRequestsPending: 1
                 }
                 metrics.setup(options)
                 const server = new Server({ port: 0 })
-                await server.register({plugin: metrics.plugin, options: {maxRequestsPending: 1}})
+                await server.register(metrics.plugin)
                 server.route({
                     method: 'GET',
                     path: '/ready',
@@ -628,7 +629,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 server.route({
                     method: 'GET',
                     path: '/delay',
-                    handler: async() => {
+                    handler: async () => {
                         await new Promise(resolve => setTimeout(resolve, 2000))
                         return 'ready'
                     }
@@ -667,11 +668,12 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 metrics.getDefaultRegister().clear()
                 const options: metricOptionsType = {
                     prefix: 'plugin3_',
-                    timeout: 1000
+                    timeout: 1000,
+                    maxConnections: 1
                 }
                 metrics.setup(options)
                 const server = new Server({ port: 0 })
-                await server.register({plugin: metrics.plugin, options: {maxConnections: 1}})
+                await server.register(metrics.plugin)
                 server.route({
                     method: 'GET',
                     path: '/ready',
@@ -680,7 +682,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 await server.start()
                 test.ok(server, 'Server is started')
                 const socket = new Socket()
-                socket.on('connect', async() => {
+                socket.on('connect', async () => {
                     test.pass('Connection established')
                     try {
                         const readyResponse = await server.inject({
@@ -695,7 +697,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                         test.end()
                     }
                 })
-                socket.on('close', async() => {
+                socket.on('close', async () => {
                     await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the connection to close
                     test.pass('Connection closed')
                     try {
@@ -717,7 +719,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.end()
             }
         })
-        pluginTest.test('limit connections', async (test: any) => {
+        pluginTest.test('handle aborted requests', async (test: any) => {
             try {
                 const metrics: Metrics = new Metrics()
                 metrics.getDefaultRegister().clear()
@@ -727,7 +729,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
                 metrics.setup(options)
                 const server = new Server({ port: 0 })
-                await server.register({plugin: metrics.plugin, options: {maxConnections: 1}})
+                await server.register(metrics.plugin)
                 let req: Http.ClientRequest;
                 server.route({
                     method: 'GET',
@@ -748,7 +750,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     port: server.info.port,
                     method: 'get'
                 });
-                req.on('error', () => {});
+                req.on('error', () => { });
                 req.end();
 
                 const [request] = await server.events.once('response');

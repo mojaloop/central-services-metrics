@@ -40,6 +40,8 @@ interface metricOptionsType {
   defaultLabels?: Map<string, string>
   register?: client.Registry
   defaultMetrics?: boolean
+  maxConnections?: number
+  maxRequestsPending?: number
 }
 
 /**
@@ -67,7 +69,7 @@ class Metrics {
   private _alreadySetup: boolean = false
 
   /** The options passed to the setup */
-  private _options: metricOptionsType = { prefix: '', timeout: 0 }
+  private _options: metricOptionsType = { prefix: '', timeout: 0, maxConnections: 0, maxRequestsPending: 0 }
 
   /** Object containing the default registry */
   private _register: client.Registry = client.register
@@ -185,7 +187,7 @@ class Metrics {
 
   plugin = {
     name: 'http server metrics',
-    register: (server: Server, { maxConnections = 0, maxRequestsPending = 0 }: { maxConnections?: number, maxRequestsPending?: number }) => {
+    register: (server: Server) => {
       const requestCounter = new client.Counter({
         registers: [this.getDefaultRegister()],
         name: 'http_requests_total',
@@ -216,6 +218,7 @@ class Metrics {
       })
 
       server.ext('onRequest', (request, h) => {
+        const { maxConnections = 0, maxRequestsPending = 0 } = this.getOptions()
         if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/ready') {
           if (maxConnections > 0 && connections >= maxConnections) { return h.response('Max connections reached').code(503).takeover() }
           if (maxRequestsPending > 0 && requests >= maxRequestsPending) { return h.response('Max requests pending reached').code(503).takeover() }
