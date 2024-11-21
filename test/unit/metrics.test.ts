@@ -28,6 +28,8 @@
 const Test = require('tapes')(require('tape'))
 import { Histogram } from "prom-client"
 import { Metrics, metricOptionsType } from "../../src/metrics"
+import { Server } from '@hapi/hapi'
+import { Socket } from 'net'
 
 Test('Metrics Class Test', (metricsTest: any) => {
 
@@ -561,6 +563,87 @@ Test('Metrics Class Test', (metricsTest: any) => {
         })
 
         getSummaryTest.end()
+    })
+
+    metricsTest.test('metrics plugin should', (pluginTest: any) => {
+        pluginTest.test('register http metrics and handle readiness', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'plugin2_',
+                    timeout: 1000
+                }
+                metrics.setup(options)
+                const server = new Server({ port: 0 })
+                await server.register({plugin: metrics.plugin, options: {maxConnections: 1}})
+                server.route({
+                    method: 'GET',
+                    path: '/test',
+                    handler: () => {
+                        return 'test'
+                    }
+                })
+                server.route({
+                    method: 'GET',
+                    path: '/ready',
+                    handler: () => {
+                        return 'ready'
+                    }
+                })
+                await server.start()
+                test.ok(server, 'Server is started')
+                await server.inject({ method: 'GET',url: '/test' })
+                const metricsResponse = await server.inject({
+                    method: 'GET',
+                    url: '/metrics'
+                })
+                test.equal(metricsResponse.statusCode, 200, 'Metrics status code is 200')
+                test.ok(metricsResponse.payload.match(/http_requests_total/), 'Total number of http requests metrics is returned')
+                test.ok(metricsResponse.payload.match(/http_request_duration_seconds/), 'Duration of http requests metric is returned')
+                test.ok(metricsResponse.payload.match(/http_request_duration_histogram_seconds/), 'Duration of http requests histogram is returned')
+                test.ok(metricsResponse.payload.match(/http_requests_current/), 'Number of requests currently running metric is returned')
+                test.ok(metricsResponse.payload.match(/http_connections_current/), 'Number of connections currently established metric is returned')
+
+
+                const socket = new Socket()
+                socket.on('connect', async() => {
+                    test.pass('Connection established')
+                    try {
+                        const readyResponse = await server.inject({
+                            method: 'GET',
+                            url: '/ready'
+                        })
+                        test.equal(readyResponse.statusCode, 503, 'Connection limit reached')
+                        socket.destroy()
+                    }
+                    catch (e) {
+                        test.fail(`Error Thrown - ${e}`)
+                        test.end()
+                    }
+                })
+                socket.on('close', async() => {
+                    await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the connection to close
+                    test.pass('Connection closed')
+                    try {
+                        const readyResponse = await server.inject({
+                            method: 'GET',
+                            url: '/ready'
+                        })
+                        test.equal(readyResponse.statusCode, 200, 'Ready status code is 200')
+                        await server.stop()
+                        test.end()
+                    } catch (e) {
+                        test.fail(`Error Thrown - ${e}`)
+                        test.end()
+                    }
+                });
+                socket.connect(Number(server.info.port), 'localhost');
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+        pluginTest.end()
     })
 
     metricsTest.end()

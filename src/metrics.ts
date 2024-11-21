@@ -29,6 +29,7 @@
 'use strict'
 
 import client = require('prom-client')
+import { type Server } from '@hapi/hapi'
 
 /**
  * Type that represents the options that are required for setup
@@ -180,6 +181,96 @@ class Metrics {
 
   getClient = (): typeof client => {
     return client
+  }
+
+  plugin = {
+    name: 'http server metrics',
+    register: (server: Server, { maxConnections = 0, maxRequestsPending = 0 }: { maxConnections?: number, maxRequestsPending?: number } = {}) => {
+      const requestCounter = new client.Counter({
+        registers: [this.getDefaultRegister()],
+        name: 'http_requests_total',
+        help: 'Total number of http requests',
+        labelNames: ['method', 'status_code', 'path']
+      })
+      const requestDuration = new client.Summary({
+        registers: [this.getDefaultRegister()],
+        name: 'http_request_duration_seconds',
+        help: 'Duration of http requests',
+        labelNames: ['method', 'status_code', 'path'],
+        aggregator: 'average'
+      })
+      const requestDurationHistogram = new client.Histogram({
+        registers: [this.getDefaultRegister()],
+        name: 'http_request_duration_histogram_seconds',
+        help: 'Duration of http requests',
+        labelNames: ['method', 'status_code', 'path'],
+        aggregator: 'average'
+      })
+
+      let requests = 0
+      const requestsGauge = new client.Gauge({
+        registers: [this.getDefaultRegister()],
+        name: 'http_requests_current',
+        help: 'Number of requests currently running',
+        labelNames: ['method']
+      })
+
+      server.ext('onRequest', (request, h) => {
+        if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/ready') {
+          if (maxConnections > 0 && connections >= maxConnections) { return h.response('Max connections reached').code(503).takeover() }
+          if (maxRequestsPending > 0 && requests >= maxRequestsPending) { return h.response('Max requests pending reached').code(503).takeover() }
+        }
+        if (['/metrics', '/health', '/ready'].includes(request.path)) return h.continue
+        requests++
+        requestsGauge.inc({ method: request.method })
+        return h.continue
+      })
+
+      server.events.on('response', request => {
+        if (['/metrics', '/health', '/ready'].includes(request.path)) return
+        requests--
+        requestsGauge.dec({ method: request.method })
+        const path = request.route.path === '/{p*}' ? request.path : request.route.path
+        const statusCode = String('isBoom' in request.response
+          ? request.response.output.statusCode
+          : request.response.statusCode)
+        const duration = (request.info.completed ?? request.info.responded) - request.info.received
+        requestCounter.labels(request.method, statusCode, path).inc()
+        requestDuration.labels(request.method, statusCode, path).observe(duration)
+        requestDurationHistogram.labels(request.method, statusCode, path).observe(duration / 1000)
+      })
+
+      let connections = 0
+      const connectionsGauge = new client.Gauge({
+        registers: [this.getDefaultRegister()],
+        name: 'http_connections_current',
+        help: 'Number of connections currently established',
+        labelNames: ['remote_address']
+      })
+
+      server.listener.on('connection', (socket) => {
+        const labels = { remote_address: socket.remoteAddress }
+        connections++
+        connectionsGauge.inc(labels)
+        socket.on('close', () => {
+          connections--
+          connectionsGauge.dec(labels)
+        })
+      })
+
+      server.route({
+        method: 'GET',
+        path: '/metrics',
+        handler: async (request, h) => {
+          return h.response(await this.getMetricsForPrometheus()).code(200).type('text/plain; version=0.0.4')
+        },
+        options: {
+          tags: ['api', 'metrics'],
+          description: 'Prometheus metrics endpoint',
+          id: 'metrics'
+        }
+      })
+    }
   }
 }
 
