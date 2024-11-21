@@ -185,7 +185,7 @@ class Metrics {
 
   plugin = {
     name: 'http server metrics',
-    register: (server: Server, { maxConnections = 0, maxRequestsPending = 0 }: { maxConnections?: number, maxRequestsPending?: number } = {}) => {
+    register: (server: Server, { maxConnections = 0, maxRequestsPending = 0 }: { maxConnections?: number, maxRequestsPending?: number }) => {
       const requestCounter = new client.Counter({
         registers: [this.getDefaultRegister()],
         name: 'http_requests_total',
@@ -234,7 +234,7 @@ class Metrics {
         const statusCode = String('isBoom' in request.response
           ? request.response.output.statusCode
           : request.response.statusCode)
-        const duration = (request.info.completed ?? request.info.responded) - request.info.received
+        const duration = Math.max(Math.max(request.info.completed, request.info.responded) - request.info.received, 0)
         requestCounter.labels(request.method, statusCode, path).inc()
         requestDuration.labels(request.method, statusCode, path).observe(duration)
         requestDurationHistogram.labels(request.method, statusCode, path).observe(duration / 1000)

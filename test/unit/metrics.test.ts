@@ -30,6 +30,7 @@ import { Histogram } from "prom-client"
 import { Metrics, metricOptionsType } from "../../src/metrics"
 import { Server } from '@hapi/hapi'
 import { Socket } from 'net'
+import Http from 'http'
 
 Test('Metrics Class Test', (metricsTest: any) => {
 
@@ -566,33 +567,31 @@ Test('Metrics Class Test', (metricsTest: any) => {
     })
 
     metricsTest.test('metrics plugin should', (pluginTest: any) => {
-        pluginTest.test('register http metrics and handle readiness', async (test: any) => {
+        pluginTest.test('register http metrics', async (test: any) => {
             try {
                 const metrics: Metrics = new Metrics()
+                metrics.getDefaultRegister().clear()
                 const options: metricOptionsType = {
-                    prefix: 'plugin2_',
+                    prefix: 'plugin1_',
                     timeout: 1000
                 }
                 metrics.setup(options)
                 const server = new Server({ port: 0 })
-                await server.register({plugin: metrics.plugin, options: {maxConnections: 1}})
+                await server.register({plugin: metrics.plugin})
                 server.route({
                     method: 'GET',
                     path: '/test',
-                    handler: () => {
-                        return 'test'
-                    }
+                    handler: () => 'test'
                 })
                 server.route({
                     method: 'GET',
-                    path: '/ready',
-                    handler: () => {
-                        return 'ready'
-                    }
+                    path: '/{p*}',
+                    handler: () => 'test'
                 })
                 await server.start()
                 test.ok(server, 'Server is started')
                 await server.inject({ method: 'GET',url: '/test' })
+                await server.inject({method: 'GET', url: '/coverage'})
                 const metricsResponse = await server.inject({
                     method: 'GET',
                     url: '/metrics'
@@ -603,8 +602,83 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.ok(metricsResponse.payload.match(/http_request_duration_histogram_seconds/), 'Duration of http requests histogram is returned')
                 test.ok(metricsResponse.payload.match(/http_requests_current/), 'Number of requests currently running metric is returned')
                 test.ok(metricsResponse.payload.match(/http_connections_current/), 'Number of connections currently established metric is returned')
+                await server.stop()
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+        pluginTest.test('limit max pending requests', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                metrics.getDefaultRegister().clear()
+                const options: metricOptionsType = {
+                    prefix: 'plugin2_',
+                    timeout: 1000
+                }
+                metrics.setup(options)
+                const server = new Server({ port: 0 })
+                await server.register({plugin: metrics.plugin, options: {maxRequestsPending: 1}})
+                server.route({
+                    method: 'GET',
+                    path: '/ready',
+                    handler: () => 'ready'
+                })
+                server.route({
+                    method: 'GET',
+                    path: '/delay',
+                    handler: async() => {
+                        await new Promise(resolve => setTimeout(resolve, 2000))
+                        return 'ready'
+                    }
+                })
+                await server.start()
+                test.ok(server, 'Server is started')
 
+                const readyResponse = await server.inject({
+                    method: 'GET',
+                    url: '/ready'
+                })
+                test.equal(readyResponse.statusCode, 200, 'Ready status code is 200')
 
+                const delayResponse = server.inject({
+                    method: 'GET',
+                    url: '/delay'
+                })
+
+                await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the request to be processed
+                const notReady = await server.inject({
+                    method: 'GET',
+                    url: '/ready'
+                })
+                test.equal(notReady.statusCode, 503, 'Requests limit reached')
+                await delayResponse;
+                await server.stop()
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+        pluginTest.test('limit connections', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                metrics.getDefaultRegister().clear()
+                const options: metricOptionsType = {
+                    prefix: 'plugin3_',
+                    timeout: 1000
+                }
+                metrics.setup(options)
+                const server = new Server({ port: 0 })
+                await server.register({plugin: metrics.plugin, options: {maxConnections: 1}})
+                server.route({
+                    method: 'GET',
+                    path: '/ready',
+                    handler: () => 'ready'
+                })
+                await server.start()
+                test.ok(server, 'Server is started')
                 const socket = new Socket()
                 socket.on('connect', async() => {
                     test.pass('Connection established')
@@ -638,6 +712,49 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     }
                 });
                 socket.connect(Number(server.info.port), 'localhost');
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+        pluginTest.test('limit connections', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                metrics.getDefaultRegister().clear()
+                const options: metricOptionsType = {
+                    prefix: 'plugin4_',
+                    timeout: 1000
+                }
+                metrics.setup(options)
+                const server = new Server({ port: 0 })
+                await server.register({plugin: metrics.plugin, options: {maxConnections: 1}})
+                let req: Http.ClientRequest;
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: (request) => new Promise((resolve) => {
+                        req.destroy();
+                        request.events.once('disconnect', () => {
+                            resolve('ok')
+                        });
+                    })
+                });
+
+                await server.start()
+                test.ok(server, 'Server is started')
+
+                req = Http.request({
+                    hostname: 'localhost',
+                    port: server.info.port,
+                    method: 'get'
+                });
+                req.on('error', () => {});
+                req.end();
+
+                const [request] = await server.events.once('response');
+                test.ok(request.response.isBoom, 'Request is aborted');
+                await server.stop()
+                test.end();
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
                 test.end()
