@@ -219,18 +219,19 @@ class Metrics {
 
       server.ext('onRequest', (request, h) => {
         const { maxConnections = 0, maxRequestsPending = 0 } = this.getOptions()
-        if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/ready') {
+        if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/health') {
           if (maxConnections > 0 && connections >= maxConnections) { return h.response('Max connections reached').code(503).takeover() }
           if (maxRequestsPending > 0 && requests >= maxRequestsPending) { return h.response('Max requests pending reached').code(503).takeover() }
         }
-        if (['/metrics', '/health', '/ready'].includes(request.path)) return h.continue
+        if (request.path === '/live') return h.response('OK').code(200).takeover()
+        if (['/metrics', '/health'].includes(request.path)) return h.continue
         requests++
         requestsGauge.inc({ method: request.method })
         return h.continue
       })
 
       server.events.on('response', request => {
-        if (['/metrics', '/health', '/ready'].includes(request.path)) return
+        if (['/metrics', '/health', '/live'].includes(request.path)) return
         requests--
         requestsGauge.dec({ method: request.method })
         const path = request.route.path === '/{p*}' ? request.path : request.route.path
