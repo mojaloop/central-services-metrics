@@ -592,6 +592,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 test.ok(server, 'Server is started')
                 await server.inject({ method: 'GET', url: '/test' })
                 await server.inject({ method: 'GET', url: '/coverage' })
+                await server.inject({ method: 'GET', url: '/live' })
                 const metricsResponse = await server.inject({
                     method: 'GET',
                     url: '/metrics'
@@ -623,7 +624,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 await server.register(metrics.plugin)
                 server.route({
                     method: 'GET',
-                    path: '/ready',
+                    path: '/health',
                     handler: () => 'ready'
                 })
                 server.route({
@@ -639,7 +640,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 const readyResponse = await server.inject({
                     method: 'GET',
-                    url: '/ready'
+                    url: '/health'
                 })
                 test.equal(readyResponse.statusCode, 200, 'Ready status code is 200')
 
@@ -651,7 +652,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the request to be processed
                 const notReady = await server.inject({
                     method: 'GET',
-                    url: '/ready'
+                    url: '/health'
                 })
                 test.equal(notReady.statusCode, 503, 'Requests limit reached')
                 await delayResponse;
@@ -676,7 +677,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 await server.register(metrics.plugin)
                 server.route({
                     method: 'GET',
-                    path: '/ready',
+                    path: '/health',
                     handler: () => 'ready'
                 })
                 await server.start()
@@ -687,7 +688,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     try {
                         const readyResponse = await server.inject({
                             method: 'GET',
-                            url: '/ready'
+                            url: '/health'
                         })
                         test.equal(readyResponse.statusCode, 503, 'Connection limit reached')
                         socket.destroy()
@@ -703,7 +704,7 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     try {
                         const readyResponse = await server.inject({
                             method: 'GET',
-                            url: '/ready'
+                            url: '/health'
                         })
                         test.equal(readyResponse.statusCode, 200, 'Ready status code is 200')
                         await server.stop()
