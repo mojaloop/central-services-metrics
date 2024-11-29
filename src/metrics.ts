@@ -217,6 +217,13 @@ class Metrics {
         labelNames: ['method']
       })
 
+      new client.Gauge({
+        registers: [this.getDefaultRegister()],
+        name: 'http_server_start',
+        help: 'Start indicator for the server'
+      }).inc()
+      let first = true
+
       server.ext('onRequest', (request, h) => {
         const { maxConnections = 0, maxRequestsPending = 0 } = this.getOptions()
         if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/health') {
@@ -266,7 +273,12 @@ class Metrics {
         method: 'GET',
         path: '/metrics',
         handler: async (request, h) => {
-          return h.response(await this.getMetricsForPrometheus()).code(200).type('text/plain; version=0.0.4')
+          const metrics = await this.getMetricsForPrometheus()
+          if (first) {
+            this.getDefaultRegister().removeSingleMetric('http_server_start')
+            first = false
+          }
+          return h.response(metrics).code(200).type('text/plain; version=0.0.4')
         },
         options: {
           tags: ['api', 'metrics'],
