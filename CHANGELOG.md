@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.3.0](https://github.com/mojaloop/central-services-metrics/compare/v12.2.1...v12.3.0) (2024-11-29)
+
+
+### Features
+
+* add start indicator ([#175](https://github.com/mojaloop/central-services-metrics/issues/175)) ([2344b03](https://github.com/mojaloop/central-services-metrics/commit/2344b0351949c6f3003b1d26bf700e5b01bd7874))
+
 ### [12.2.1](https://github.com/mojaloop/central-services-metrics/compare/v12.2.0...v12.2.1) (2024-11-25)
 
 
