@@ -569,123 +569,116 @@ Test('Metrics Class Test', (metricsTest: any) => {
     metricsTest.test('getCounter should', (getCounterTest: any) => {
         getCounterTest.test('return the counter', async (test: any) => {
             try {
-            const metrics: Metrics = new Metrics()
-            const options: metricOptionsType = {
-                prefix: 'prefixCounter1_',
-                timeout: 1000
-            }
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixCounter1_',
+                    timeout: 1000
+                }
 
-            const counterConfig = {
-                constructor: 'Counter',
-                name: 'prefixCounter1_test_counter',
-                help: 'Counter for http operation',
-                labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
-            }
+                const counterConfig = {
+                    constructor: 'Counter',
+                    name: 'prefixCounter1_test_counter',
+                    help: 'Counter for http operation',
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
 
-            metrics.setup(options)
-            const result = metrics.getCounter(
-                'test_counter',
-                counterConfig.help,
-                counterConfig.labelNames
-            )
-            test.equal(Object.getPrototypeOf(result).constructor.name, counterConfig.constructor, 'Counter object is not valid')
-            test.end()
+                metrics.setup(options)
+                const result = metrics.getCounter(
+                    'test_counter',
+                    counterConfig.help,
+                    counterConfig.labelNames
+                )
+                test.equal(Object.getPrototypeOf(result).constructor.name, counterConfig.constructor, 'Counter object is not valid')
+                test.end()
             } catch (e) {
-            test.fail(`Error Thrown - ${e}`)
-            test.end()
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
             }
         })
 
         getCounterTest.test('return the counter if help param is empty string', async (test: any) => {
             try {
-            const metrics: Metrics = new Metrics()
-            const options: metricOptionsType = {
-                prefix: 'prefixCounter2_',
-                timeout: 1000
-            }
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixCounter2_',
+                    timeout: 1000
+                }
 
-            const counterConfig = {
-                constructor: 'Counter',
-                name: 'prefixCounter2_test_counter',
-                help: '',
-                labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
-            }
+                const counterConfig = {
+                    constructor: 'Counter',
+                    name: 'prefixCounter2_test_counter',
+                    help: '',
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
 
-            metrics.setup(options)
-            const result = metrics.getCounter(
-                'test_counter',
-                counterConfig.help,
-                counterConfig.labelNames
-            )
+                metrics.setup(options)
+                metrics.getCounter(
+                    'test_counter',
+                    counterConfig.help,
+                    counterConfig.labelNames
+                )
 
-            test.fail('Expected an error to be thrown with help param being empty or null')
-            test.end()
+                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.end()
             } catch (e) {
-            test.equal(e.message, 'Couldn\'t get counter for test_counter')
-            test.end()
+                test.equal(e.message, 'Couldn\'t get counter for test_counter')
+                test.end()
             }
         })
 
         getCounterTest.test('return the counter if help param is null', async (test: any) => {
             try {
-            const metrics: Metrics = new Metrics()
-            const options: metricOptionsType = {
-                prefix: 'prefixCounter3_',
-                timeout: 1000
-            }
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixCounter3_',
+                    timeout: 1000
+                }
 
-            const counterConfig = {
-                constructor: 'Counter',
-                name: 'prefixCounter3_test_counter',
-                help: null,
-                labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
-            }
+                metrics.setup(options)
+                metrics.getCounter(
+                    'test_counter'
+                )
 
-            metrics.setup(options)
-            const result = metrics.getCounter(
-                'test_counter'
-            )
-
-            test.fail('Expected an error to be thrown with help param being empty or null')
-            test.end()
+                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.end()
             } catch (e) {
-            test.equal(e.message, 'Couldn\'t get counter for test_counter')
-            test.end()
+                test.equal(e.message, 'Couldn\'t get counter for test_counter')
+                test.end()
             }
         })
 
         getCounterTest.test('return the existing counter', async (test: any) => {
             try {
-            const metrics: Metrics = new Metrics()
-            const options: metricOptionsType = {
-                prefix: 'prefixCounter4_',
-                timeout: 1000
-            }
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixCounter4_',
+                    timeout: 1000
+                }
 
-            const counterConfig = {
-                constructor: 'Counter',
-                name: 'prefixCounter4_test_counter',
-                help: 'Counter for http operation',
-                labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
-            }
+                const counterConfig = {
+                    constructor: 'Counter',
+                    name: 'prefixCounter4_test_counter',
+                    help: 'Counter for http operation',
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
 
-            metrics.setup(options)
-            const firstResult = metrics.getCounter(
-                'test_counter',
-                counterConfig.help,
-                counterConfig.labelNames
-            )
-            const secondResult = metrics.getCounter(
-                'test_counter',
-                counterConfig.help,
-                counterConfig.labelNames
-            )
-            test.equal(Object.getPrototypeOf(firstResult).constructor.name, counterConfig.constructor, 'Counter object is not valid')
-            test.equal(Object.getPrototypeOf(secondResult).constructor.name, counterConfig.constructor, 'Counter object is not valid')
-            test.end()
+                metrics.setup(options)
+                const firstResult = metrics.getCounter(
+                    'test_counter',
+                    counterConfig.help,
+                    counterConfig.labelNames
+                )
+                const secondResult = metrics.getCounter(
+                    'test_counter',
+                    counterConfig.help,
+                    counterConfig.labelNames
+                )
+                test.equal(Object.getPrototypeOf(firstResult).constructor.name, counterConfig.constructor, 'Counter object is not valid')
+                test.equal(Object.getPrototypeOf(secondResult).constructor.name, counterConfig.constructor, 'Counter object is not valid')
+                test.end()
             } catch (e) {
-            test.fail(`Error Thrown - ${e}`)
-            test.end()
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
             }
         })
         getCounterTest.end()
