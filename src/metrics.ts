@@ -62,6 +62,7 @@ interface normalisedMetricOptionsType {
 export interface histogramsType { [key: string]: client.Histogram<string> }
 export interface summariesType { [key: string]: client.Summary<string> }
 export interface gaugesType { [key: string]: client.Gauge<string> }
+export interface countersType { [key: string]: client.Counter<string> }
 
 /** Wrapper class for prom-client. */
 class Metrics {
@@ -79,6 +80,8 @@ class Metrics {
 
   /** Object containing the summaries values */
   private _summaries: summariesType = {}
+
+  private _counters: countersType = {}
 
   /**
      * Setup the prom client for collecting metrics using the options passed
@@ -153,6 +156,22 @@ class Metrics {
       return this._summaries[name]
     } catch (e) {
       throw new Error(`Couldn't get summary for ${name}`)
+    }
+  }
+
+  getCounter = (name: string, help?: string, labelNames?: string[]): client.Counter<string> => {
+    try {
+      if (this._counters[name] != null) {
+        return this._counters[name]
+      }
+      this._counters[name] = new client.Counter({
+        name: `${this.getOptions().prefix}${name}`,
+        help: (help != null ? help : `${name}_counter`),
+        labelNames
+      })
+      return this._counters[name]
+    } catch (e) {
+      throw new Error(`Couldn't get counter for ${name}`)
     }
   }
 
