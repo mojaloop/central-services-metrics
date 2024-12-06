@@ -81,6 +81,7 @@ class Metrics {
   /** Object containing the summaries values */
   private _summaries: summariesType = {}
 
+  /** Object containing the counter values */
   private _counters: countersType = {}
 
   /**
@@ -101,7 +102,7 @@ class Metrics {
       client.register.setDefaultLabels(this._options.defaultLabels)
     }
 
-    // configure detault metrics
+    // configure default metrics
     if (options.defaultMetrics !== false) client.collectDefaultMetrics(normalisedOptions)
 
     // set default registry
@@ -111,8 +112,18 @@ class Metrics {
     // set setup flag
     this._alreadySetup = true
 
+    this._setupDefaultServiceMetrics()
+
     // return true if we are setup
     return true
+  }
+
+  _setupDefaultServiceMetrics = (): void => {
+    this.getCounter(
+      'errorCount',
+      'Error count',
+      ['code', 'system', 'operation', 'step']
+    )
   }
 
   /**
