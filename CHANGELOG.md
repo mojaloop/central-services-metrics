@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.4.0](https://github.com/mojaloop/central-services-metrics/compare/v12.3.0...v12.4.0) (2024-12-04)
+
+
+### Features
+
+* add promtheus counters ([#176](https://github.com/mojaloop/central-services-metrics/issues/176)) ([42fd6a5](https://github.com/mojaloop/central-services-metrics/commit/42fd6a5b4eeb37b55aeb99fa7f4d0c1923f435f4))
+
 ## [12.3.0](https://github.com/mojaloop/central-services-metrics/compare/v12.2.1...v12.3.0) (2024-11-29)
 
 
