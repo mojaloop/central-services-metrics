@@ -92,6 +92,7 @@ class Metrics {
       client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
       return false
     }
+    this.getDefaultRegister().clear()
     this._options = options
     // map the options to the normalised options specific to the prom-client
     const normalisedOptions: normalisedMetricOptionsType = {
@@ -122,7 +123,8 @@ class Metrics {
     this.getCounter(
       'errorCount',
       'Error count',
-      ['code', 'system', 'operation', 'step']
+      ['code', 'system', 'operation', 'step'],
+      false
     )
   }
 
@@ -170,13 +172,13 @@ class Metrics {
     }
   }
 
-  getCounter = (name: string, help?: string, labelNames?: string[]): client.Counter<string> => {
+  getCounter = (name: string, help?: string, labelNames?: string[], prefix: boolean = true): client.Counter<string> => {
     try {
       if (this._counters[name] != null) {
         return this._counters[name]
       }
       this._counters[name] = new client.Counter({
-        name: `${this.getOptions().prefix}${name}`,
+        name: `${prefix ? this.getOptions().prefix : ''}${name}`,
         help: (help != null ? help : `${name}_counter`),
         labelNames
       })
