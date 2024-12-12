@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.4.2](https://github.com/mojaloop/central-services-metrics/compare/v12.4.1...v12.4.2) (2024-12-12)
+
+
+### Bug Fixes
+
+* remove errorCount prefix ([#178](https://github.com/mojaloop/central-services-metrics/issues/178)) ([ac5e084](https://github.com/mojaloop/central-services-metrics/commit/ac5e084eaf2691592006113d14723bde6677da61))
+
 ### [12.4.1](https://github.com/mojaloop/central-services-metrics/compare/v12.4.0...v12.4.1) (2024-12-06)
 
 ## [12.4.0](https://github.com/mojaloop/central-services-metrics/compare/v12.3.0...v12.4.0) (2024-12-04)
