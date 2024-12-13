@@ -29,6 +29,7 @@
 'use strict'
 
 import client = require('prom-client')
+import { type Server } from '@hapi/hapi'
 
 /**
  * Type that represents the options that are required for setup
@@ -38,6 +39,9 @@ interface metricOptionsType {
   prefix: string
   defaultLabels?: Map<string, string>
   register?: client.Registry
+  defaultMetrics?: boolean
+  maxConnections?: number
+  maxRequestsPending?: number
 }
 
 /**
@@ -58,6 +62,7 @@ interface normalisedMetricOptionsType {
 export interface histogramsType { [key: string]: client.Histogram<string> }
 export interface summariesType { [key: string]: client.Summary<string> }
 export interface gaugesType { [key: string]: client.Gauge<string> }
+export interface countersType { [key: string]: client.Counter<string> }
 
 /** Wrapper class for prom-client. */
 class Metrics {
@@ -65,7 +70,7 @@ class Metrics {
   private _alreadySetup: boolean = false
 
   /** The options passed to the setup */
-  private _options: metricOptionsType = { prefix: '', timeout: 0 }
+  private _options: metricOptionsType = { prefix: '', timeout: 0, maxConnections: 0, maxRequestsPending: 0 }
 
   /** Object containing the default registry */
   private _register: client.Registry = client.register
@@ -76,6 +81,9 @@ class Metrics {
   /** Object containing the summaries values */
   private _summaries: summariesType = {}
 
+  /** Object containing the counter values */
+  private _counters: countersType = {}
+
   /**
      * Setup the prom client for collecting metrics using the options passed
      */
@@ -84,6 +92,7 @@ class Metrics {
       client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
       return false
     }
+    this.getDefaultRegister().clear()
     this._options = options
     // map the options to the normalised options specific to the prom-client
     const normalisedOptions: normalisedMetricOptionsType = {
@@ -94,8 +103,8 @@ class Metrics {
       client.register.setDefaultLabels(this._options.defaultLabels)
     }
 
-    // configure detault metrics
-    client.collectDefaultMetrics(normalisedOptions)
+    // configure default metrics
+    if (options.defaultMetrics !== false) client.collectDefaultMetrics(normalisedOptions)
 
     // set default registry
     // client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
@@ -104,8 +113,19 @@ class Metrics {
     // set setup flag
     this._alreadySetup = true
 
+    this._setupDefaultServiceMetrics()
+
     // return true if we are setup
     return true
+  }
+
+  _setupDefaultServiceMetrics = (): void => {
+    this.getCounter(
+      'errorCount',
+      'Error count',
+      ['code', 'system', 'operation', 'step'],
+      false
+    )
   }
 
   /**
@@ -152,6 +172,22 @@ class Metrics {
     }
   }
 
+  getCounter = (name: string, help?: string, labelNames?: string[], prefix: boolean = true): client.Counter<string> => {
+    try {
+      if (this._counters[name] != null) {
+        return this._counters[name]
+      }
+      this._counters[name] = new client.Counter({
+        name: `${prefix ? this.getOptions().prefix : ''}${name}`,
+        help: (help != null ? help : `${name}_counter`),
+        labelNames
+      })
+      return this._counters[name]
+    } catch (e) {
+      throw new Error(`Couldn't get counter for ${name}`)
+    }
+  }
+
   /**
      * Get the metrics
      */
@@ -175,6 +211,114 @@ class Metrics {
 
   getDefaultRegister = (): client.Registry => {
     return this._register
+  }
+
+  getClient = (): typeof client => {
+    return client
+  }
+
+  plugin = {
+    name: 'http server metrics',
+    register: (server: Server) => {
+      const requestCounter = new client.Counter({
+        registers: [this.getDefaultRegister()],
+        name: 'http_requests_total',
+        help: 'Total number of http requests',
+        labelNames: ['method', 'status_code', 'path']
+      })
+      const requestDuration = new client.Summary({
+        registers: [this.getDefaultRegister()],
+        name: 'http_request_duration_seconds',
+        help: 'Duration of http requests',
+        labelNames: ['method', 'status_code', 'path'],
+        aggregator: 'average'
+      })
+      const requestDurationHistogram = new client.Histogram({
+        registers: [this.getDefaultRegister()],
+        name: 'http_request_duration_histogram_seconds',
+        help: 'Duration of http requests',
+        labelNames: ['method', 'status_code', 'path'],
+        aggregator: 'average'
+      })
+
+      let requests = 0
+      const requestsGauge = new client.Gauge({
+        registers: [this.getDefaultRegister()],
+        name: 'http_requests_current',
+        help: 'Number of requests currently running',
+        labelNames: ['method']
+      })
+
+      new client.Gauge({
+        registers: [this.getDefaultRegister()],
+        name: 'http_server_start',
+        help: 'Start indicator for the server'
+      }).inc()
+      let first = true
+
+      server.ext('onRequest', (request, h) => {
+        const { maxConnections = 0, maxRequestsPending = 0 } = this.getOptions()
+        if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/health') {
+          if (maxConnections > 0 && connections >= maxConnections) { return h.response('Max connections reached').code(503).takeover() }
+          if (maxRequestsPending > 0 && requests >= maxRequestsPending) { return h.response('Max requests pending reached').code(503).takeover() }
+        }
+        if (request.path === '/live') return h.response('OK').code(200).takeover()
+        if (['/metrics', '/health'].includes(request.path)) return h.continue
+        requests++
+        requestsGauge.inc({ method: request.method })
+        return h.continue
+      })
+
+      server.events.on('response', request => {
+        if (['/metrics', '/health', '/live'].includes(request.path)) return
+        requests--
+        requestsGauge.dec({ method: request.method })
+        const path = request.route.path === '/{p*}' ? request.path : request.route.path
+        const statusCode = String('isBoom' in request.response
+          ? request.response.output.statusCode
+          : request.response.statusCode)
+        const duration = Math.max(Math.max(request.info.completed, request.info.responded) - request.info.received, 0)
+        requestCounter.labels(request.method, statusCode, path).inc()
+        requestDuration.labels(request.method, statusCode, path).observe(duration)
+        requestDurationHistogram.labels(request.method, statusCode, path).observe(duration / 1000)
+      })
+
+      let connections = 0
+      const connectionsGauge = new client.Gauge({
+        registers: [this.getDefaultRegister()],
+        name: 'http_connections_current',
+        help: 'Number of connections currently established',
+        labelNames: ['remote_address']
+      })
+
+      server.listener.on('connection', (socket) => {
+        const labels = { remote_address: socket.remoteAddress }
+        connections++
+        connectionsGauge.inc(labels)
+        socket.on('close', () => {
+          connections--
+          connectionsGauge.dec(labels)
+        })
+      })
+
+      server.route({
+        method: 'GET',
+        path: '/metrics',
+        handler: async (request, h) => {
+          const metrics = await this.getMetricsForPrometheus()
+          if (first) {
+            this.getDefaultRegister().removeSingleMetric('http_server_start')
+            first = false
+          }
+          return h.response(metrics).code(200).type('text/plain; version=0.0.4')
+        },
+        options: {
+          tags: ['api', 'metrics'],
+          description: 'Prometheus metrics endpoint',
+          id: 'metrics'
+        }
+      })
+    }
   }
 }
 

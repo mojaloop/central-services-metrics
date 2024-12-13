@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.4.2](https://github.com/mojaloop/central-services-metrics/compare/v12.4.1...v12.4.2) (2024-12-12)
+
+
+### Bug Fixes
+
+* remove errorCount prefix ([#178](https://github.com/mojaloop/central-services-metrics/issues/178)) ([ac5e084](https://github.com/mojaloop/central-services-metrics/commit/ac5e084eaf2691592006113d14723bde6677da61))
+
+### [12.4.1](https://github.com/mojaloop/central-services-metrics/compare/v12.4.0...v12.4.1) (2024-12-06)
+
+## [12.4.0](https://github.com/mojaloop/central-services-metrics/compare/v12.3.0...v12.4.0) (2024-12-04)
+
+
+### Features
+
+* add promtheus counters ([#176](https://github.com/mojaloop/central-services-metrics/issues/176)) ([42fd6a5](https://github.com/mojaloop/central-services-metrics/commit/42fd6a5b4eeb37b55aeb99fa7f4d0c1923f435f4))
+
+## [12.3.0](https://github.com/mojaloop/central-services-metrics/compare/v12.2.1...v12.3.0) (2024-11-29)
+
+
+### Features
+
+* add start indicator ([#175](https://github.com/mojaloop/central-services-metrics/issues/175)) ([2344b03](https://github.com/mojaloop/central-services-metrics/commit/2344b0351949c6f3003b1d26bf700e5b01bd7874))
+
+### [12.2.1](https://github.com/mojaloop/central-services-metrics/compare/v12.2.0...v12.2.1) (2024-11-25)
+
+
+### Bug Fixes
+
+* liveness and readiness paths ([#174](https://github.com/mojaloop/central-services-metrics/issues/174)) ([466c07b](https://github.com/mojaloop/central-services-metrics/commit/466c07be6edb40b2094331e869d5c7c5acf3e309))
+
+## [12.2.0](https://github.com/mojaloop/central-services-metrics/compare/v12.1.0...v12.2.0) (2024-11-21)
+
+
+### Features
+
+* add hapi metrics plugin ([#173](https://github.com/mojaloop/central-services-metrics/issues/173)) ([ae8d140](https://github.com/mojaloop/central-services-metrics/commit/ae8d140b26e78866c910236d890a2e4d0f95b6b4))
+
+## [12.1.0](https://github.com/mojaloop/central-services-metrics/compare/v12.0.8...v12.1.0) (2024-11-13)
+
+
+### Features
+
+* add defaultMetrics option to metrics configuration and expose prom-client ([#172](https://github.com/mojaloop/central-services-metrics/issues/172)) ([61ba9ad](https://github.com/mojaloop/central-services-metrics/commit/61ba9ad7f8a7c7f2a961405dcd7354ea556b5c43))
+
 ### [12.0.8](https://github.com/mojaloop/central-services-metrics/compare/v12.0.7...v12.0.8) (2023-08-29)
 
 ### [12.0.7](https://github.com/mojaloop/central-services-metrics/compare/v12.0.6...v12.0.7) (2023-08-23)
