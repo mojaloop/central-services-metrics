@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@hapi/hapi": "^21.3.12",
-    "@types/node": "^22.10.10",
+    "@types/node": "^22.13.4",
     "@types/tape": "5.8.1",
     "audit-ci": "^7.1.0",
     "debug": "4.4.0",
