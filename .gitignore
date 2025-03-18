@@ -78,3 +78,5 @@ docs/
 
 # Ignore general
 **/*.IGNORE.*
+
+.rush
