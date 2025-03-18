@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.5.0](https://github.com/mojaloop/central-services-metrics/compare/v12.4.5...v12.5.0) (2025-03-18)
+
+
+### Features
+
+* add context and expected labels to errorCount metric ([#182](https://github.com/mojaloop/central-services-metrics/issues/182)) ([400751f](https://github.com/mojaloop/central-services-metrics/commit/400751fa704e4c3a00cf1fb3d49160cf85bf6730))
+
 ### [12.4.5](https://github.com/mojaloop/central-services-metrics/compare/v12.4.4...v12.4.5) (2025-02-18)
 
 ### [12.4.4](https://github.com/mojaloop/central-services-metrics/compare/v12.4.3...v12.4.4) (2025-01-24)
