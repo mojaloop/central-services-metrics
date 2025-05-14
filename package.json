@@ -22,6 +22,8 @@
     "test:xunit": "npx ts-node node_modules/tape/bin/tape 'test/unit/**/*.test.ts' | tap-xunit > ./test/results/xunit.xml",
     "test:coverage": "nyc --reporter=lcov --reporter=text-summary --require ts-node/register tape test/unit/**/*.test.{ts,js}",
     "test:coverage-check": "npm run test:coverage && nyc check-coverage",
+    "test:functional": "true",
+    "test:integration": "true",
     "audit:fix": "npm audit fix",
     "audit:check": "npx audit-ci --config ./audit-ci.jsonc",
     "dep:check": "npx ncu -e 2",
