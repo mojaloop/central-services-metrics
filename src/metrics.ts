@@ -36,8 +36,8 @@ import client = require('prom-client')
 import { type Server } from '@hapi/hapi'
 
 /**
- * Type that represents the options that are required for setup
- */
+* Type that represents the options that are required for setup
+*/
 interface metricOptionsType {
   timeout: number
   prefix: string
@@ -49,16 +49,16 @@ interface metricOptionsType {
 }
 
 /**
- * Type that represents the options that are required to setup the prom-client specifically
- */
+* Type that represents the options that are required to setup the prom-client specifically
+*/
 interface normalisedMetricOptionsType {
   timeout: number
   prefix: string
 }
 
 /**
- * Object that holds the histogram values
- */
+* Object that holds the histogram values
+*/
 // Required for Prom-Client v12.x
 // type histogramsType = { [key: string]: client.Histogram<string> }
 // type summariesType = { [key: string]: client.Summary<string> }
@@ -89,8 +89,8 @@ class Metrics {
   private _counters: countersType = {}
 
   /**
-     * Setup the prom client for collecting metrics using the options passed
-     */
+    * Setup the prom client for collecting metrics using the options passed
+    */
   setup = (options: metricOptionsType): boolean => {
     if (this._alreadySetup) {
       client.AggregatorRegistry.setRegistries(this.getDefaultRegister())
@@ -133,8 +133,8 @@ class Metrics {
   }
 
   /**
-     * Get the histogram values for given name
-     */
+    * Get the histogram values for given name
+    */
   // getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram<string> => { // <-- required for Prom-Client v12.x
   getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram<string> => { // <-- required for Prom-Client v11.x
     try {
@@ -154,8 +154,8 @@ class Metrics {
   }
 
   /**
-     * Get the summary for given name
-     */
+    * Get the summary for given name
+    */
   // getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [ 0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary<string> => { // <-- required for Prom-Client v12.x
   getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary<string> => { // <-- required for Prom-Client v11.x
     try {
@@ -193,22 +193,22 @@ class Metrics {
   }
 
   /**
-     * Get the metrics
-     */
+    * Get the metrics
+    */
   getMetricsForPrometheus = async (): Promise<string> => {
     return await client.register.metrics()
   }
 
   /**
-     * Get the options that are used to setup the prom-client
-     */
+    * Get the options that are used to setup the prom-client
+    */
   getOptions = (): metricOptionsType => {
     return this._options
   }
 
   /**
-     * To check is it the Metrics already initiated
-     */
+    * To check is it the Metrics already initiated
+    */
   isInitiated = (): boolean => {
     return this._alreadySetup
   }
@@ -263,13 +263,8 @@ class Metrics {
       server.ext('onRequest', (request, h) => {
         const { maxConnections = 0, maxRequestsPending = 0 } = this.getOptions()
         if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/health') {
-          console.log(`Checking /health, connections: ${connections}, maxConnections: ${maxConnections}`) // Debug log
-          if (maxConnections > 0 && connections >= maxConnections) { 
-            return h.response('Max connections reached').code(503).takeover() 
-          }
-          if (maxRequestsPending > 0 && requests >= maxRequestsPending) { 
-            return h.response('Max requests pending reached').code(503).takeover() 
-          }
+          if (maxConnections > 0 && connections >= maxConnections) { return h.response('Max connections reached').code(503).takeover() }
+          if (maxRequestsPending > 0 && requests >= maxRequestsPending) { return h.response('Max requests pending reached').code(503).takeover() }
         }
         if (request.path === '/live') return h.response('OK').code(200).takeover()
         if (['/metrics', '/health'].includes(request.path)) return h.continue
@@ -304,11 +299,9 @@ class Metrics {
         const labels = { remote_address: socket.remoteAddress }
         connections++
         connectionsGauge.inc(labels)
-        console.log(`Connection opened, connections: ${connections}`) // Debug log
         socket.on('close', () => {
           connections--
           connectionsGauge.dec(labels)
-          console.log(`Connection closed, connections: ${connections}`) // Debug log
         })
       })
 
