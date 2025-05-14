@@ -804,39 +804,56 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 })
                 await server.start()
                 test.ok(server, 'Server is started')
-                const socket = new Socket()
-                socket.on('connect', async () => {
-                    test.pass('Connection established')
-                    try {
-                        const readyResponse = await server.inject({
-                            method: 'GET',
-                            url: '/health'
-                        })
-                        test.equal(readyResponse.statusCode, 503, 'Connection limit reached')
-                        socket.destroy()
-                    }
-                    catch (e) {
-                        test.fail(`Error Thrown - ${e}`)
+
+                interface HttpResponse {
+                    statusCode: number;
+                }
+
+                // Create a keep-alive connection
+                const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 })
+                const firstResponse = await new Promise<HttpResponse>((resolve) => {
+                    Http.get(
+                        `http://localhost:${server.info.port}/health`,
+                        { agent, headers: { Connection: 'keep-alive' } },
+                        (res) => {
+                            if (res.statusCode === undefined) {
+                                test.fail('Received undefined statusCode')
+                                test.end()
+                                return
+                            }
+                            resolve({ statusCode: res.statusCode })
+                        }
+                    ).on('error', (err) => {
+                        test.fail(`HTTP request error: ${err}`)
                         test.end()
-                    }
+                    })
                 })
-                socket.on('close', async () => {
-                    await new Promise(resolve => setTimeout(resolve, 1000)) // wait for the connection to close
-                    test.pass('Connection closed')
-                    try {
-                        const readyResponse = await server.inject({
-                            method: 'GET',
-                            url: '/health'
-                        })
-                        test.equal(readyResponse.statusCode, 200, 'Ready status code is 200')
-                        await server.stop()
-                        test.end()
-                    } catch (e) {
-                        test.fail(`Error Thrown - ${e}`)
-                        test.end()
-                    }
-                });
-                socket.connect(Number(server.info.port), 'localhost');
+
+                test.equal(firstResponse.statusCode, 503, 'Connection limit reached')
+
+                // Destroy the agent to close the connection
+                agent.destroy()
+                await new Promise<void>(resolve => setTimeout(resolve, 2000))
+
+                // Verify connections count is 0
+                const metricsOutput = await metrics.getMetricsForPrometheus()
+                const connectionsMetric = metricsOutput.match(/http_connections_current\{remote_address="[^"]+"\}\s+(\d+)/)
+                test.ok(connectionsMetric, 'Connections metric found')
+                if (connectionsMetric) {
+                    test.equal(parseInt(connectionsMetric[1]), 0, 'Connections count should be 0')
+                } else {
+                    test.fail('Connections metric not found in Prometheus output')
+                    test.end()
+                }
+
+                // Verify /health returns 200
+                const finalResponse = await server.inject({
+                    method: 'GET',
+                    url: '/health'
+                })
+                test.equal(finalResponse.statusCode, 200, 'Ready status code is 200')
+                await server.stop()
+                test.end()
             } catch (e) {
                 test.fail(`Error Thrown - ${e}`)
                 test.end()
