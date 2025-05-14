@@ -852,7 +852,6 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     url: '/health'
                 })
                 test.equal(finalResponse.statusCode, 200, 'Ready status code is 200')
-
                 await server.stop()
                 test.end()
             } catch (e) {
