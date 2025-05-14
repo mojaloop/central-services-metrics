@@ -263,8 +263,13 @@ class Metrics {
       server.ext('onRequest', (request, h) => {
         const { maxConnections = 0, maxRequestsPending = 0 } = this.getOptions()
         if ((maxConnections > 0 || maxRequestsPending > 0) && request.path === '/health') {
-          if (maxConnections > 0 && connections >= maxConnections) { return h.response('Max connections reached').code(503).takeover() }
-          if (maxRequestsPending > 0 && requests >= maxRequestsPending) { return h.response('Max requests pending reached').code(503).takeover() }
+          console.log(`Checking /health, connections: ${connections}, maxConnections: ${maxConnections}`) // Debug log
+          if (maxConnections > 0 && connections >= maxConnections) { 
+            return h.response('Max connections reached').code(503).takeover() 
+          }
+          if (maxRequestsPending > 0 && requests >= maxRequestsPending) { 
+            return h.response('Max requests pending reached').code(503).takeover() 
+          }
         }
         if (request.path === '/live') return h.response('OK').code(200).takeover()
         if (['/metrics', '/health'].includes(request.path)) return h.continue
@@ -299,9 +304,11 @@ class Metrics {
         const labels = { remote_address: socket.remoteAddress }
         connections++
         connectionsGauge.inc(labels)
+        console.log(`Connection opened, connections: ${connections}`) // Debug log
         socket.on('close', () => {
           connections--
           connectionsGauge.dec(labels)
+          console.log(`Connection closed, connections: ${connections}`) // Debug log
         })
       })
 
