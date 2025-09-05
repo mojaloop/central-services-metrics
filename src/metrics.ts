@@ -26,6 +26,7 @@
  - Rajiv Mothilal <rajivmothilal@gmail.com>
  - Miguel de Barros <miguel.debarros@modusbox.com>
  - Shashikant Hirugade <shashikant.hirugade@modusbox.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
 
  --------------
  ******/
@@ -87,6 +88,9 @@ class Metrics {
 
   /** Object containing the counter values */
   private _counters: countersType = {}
+
+  /** Object containing the gauge values */
+  private _gauges: gaugesType = {}
 
   /**
    * Setup the prom client for collecting metrics using the options passed
@@ -189,6 +193,22 @@ class Metrics {
       return this._counters[name]
     } catch (e) {
       throw new Error(`Couldn't get counter for ${name}`)
+    }
+  }
+
+  getGauge = (name: string, help?: string, labelNames?: string[]): client.Gauge<string> => {
+    try {
+      if (this._gauges[name] != null) {
+        return this._gauges[name]
+      }
+      this._gauges[name] = new client.Gauge({
+        name: `${this.getOptions().prefix}${name}`,
+        help: (help != null ? help : `${name}_gauge`),
+        labelNames
+      })
+      return this._gauges[name]
+    } catch (e) {
+      throw new Error(`Couldn't get gauge for ${name}`)
     }
   }
 
