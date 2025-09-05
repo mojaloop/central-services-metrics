@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.7.0](https://github.com/mojaloop/central-services-metrics/compare/v12.6.0...v12.7.0) (2025-09-05)
+
+
+### Features
+
+* **csi-1713:** add support for gauges ([#184](https://github.com/mojaloop/central-services-metrics/issues/184)) ([79ee7ad](https://github.com/mojaloop/central-services-metrics/commit/79ee7adf11040d46387a988b1be3a1b245920f3a))
+
 ## [12.6.0](https://github.com/mojaloop/central-services-metrics/compare/v12.5.0...v12.6.0) (2025-05-14)
 
 
