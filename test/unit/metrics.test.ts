@@ -23,6 +23,7 @@
  - Name Surname <name.surname@mojaloop.io>
 
  - Shashikant Hirugade <shashikant.hirugade@modusbox.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
 
  --------------
  ******/
@@ -903,6 +904,124 @@ Test('Metrics Class Test', (metricsTest: any) => {
             }
         })
         pluginTest.end()
+    })
+
+    metricsTest.test('getGauge should', (getGaugeTest: any) => {
+        getGaugeTest.test('return the gauge', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixGauge1_',
+                    timeout: 1000
+                }
+
+                const gaugeConfig = {
+                    constructor: 'Gauge',
+                    name: 'prefixGauge1_test_gauge',
+                    help: 'Gauge for http operation',
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
+
+                metrics.setup(options)
+                const result = metrics.getGauge(
+                    'test_gauge',
+                    gaugeConfig.help,
+                    gaugeConfig.labelNames
+                )
+                test.equal(Object.getPrototypeOf(result).constructor.name, gaugeConfig.constructor, 'Gauge object is not valid')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+
+        getGaugeTest.test('return the gauge if help param is empty string', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixGauge2_',
+                    timeout: 1000
+                }
+
+                const gaugeConfig = {
+                    constructor: 'Gauge',
+                    name: 'prefixGauge2_test_gauge',
+                    help: '',
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
+
+                metrics.setup(options)
+                metrics.getGauge(
+                    'test_gauge',
+                    gaugeConfig.help,
+                    gaugeConfig.labelNames
+                )
+
+                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.end()
+            } catch (e) {
+                test.equal(e.message, 'Couldn\'t get gauge for test_gauge')
+                test.end()
+            }
+        })
+
+        getGaugeTest.test('return the gauge if help param is null', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixGauge3_',
+                    timeout: 1000
+                }
+
+                metrics.setup(options)
+                metrics.getGauge(
+                    'test_gauge'
+                )
+
+                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.end()
+            } catch (e) {
+                test.equal(e.message, 'Couldn\'t get gauge for test_gauge')
+                test.end()
+            }
+        })
+
+        getGaugeTest.test('return the existing gauge', async (test: any) => {
+            try {
+                const metrics: Metrics = new Metrics()
+                const options: metricOptionsType = {
+                    prefix: 'prefixGauge4_',
+                    timeout: 1000
+                }
+
+                const gaugeConfig = {
+                    constructor: 'Gauge',
+                    name: 'prefixGauge4_test_gauge',
+                    help: 'Gauge for http operation',
+                    labelNames: ['success', 'fsp', 'operation', 'source', 'destination']
+                }
+
+                metrics.setup(options)
+                const firstResult = metrics.getGauge(
+                    'test_gauge',
+                    gaugeConfig.help,
+                    gaugeConfig.labelNames
+                )
+                const secondResult = metrics.getGauge(
+                    'test_gauge',
+                    gaugeConfig.help,
+                    gaugeConfig.labelNames
+                )
+                test.equal(Object.getPrototypeOf(firstResult).constructor.name, gaugeConfig.constructor, 'Gauge object is not valid')
+                test.equal(Object.getPrototypeOf(secondResult).constructor.name, gaugeConfig.constructor, 'Gauge object is not valid')
+                test.end()
+            } catch (e) {
+                test.fail(`Error Thrown - ${e}`)
+                test.end()
+            }
+        })
+        getGaugeTest.end()
     })
 
     metricsTest.end()
