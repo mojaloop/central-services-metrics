@@ -134,6 +134,12 @@ class Metrics {
       ['code', 'system', 'operation', 'step', 'context', 'expected'],
       false
     )
+    this.getCounter(
+      'app_critical_total',
+      'Total times app entered critical health',
+      ['service'],
+      false
+    )
   }
 
   /**
