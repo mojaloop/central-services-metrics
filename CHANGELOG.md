@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.8.0](https://github.com/mojaloop/central-services-metrics/compare/v12.7.1...v12.8.0) (2025-09-24)
+
+
+### Features
+
+* add grype src scan pi28 ([#186](https://github.com/mojaloop/central-services-metrics/issues/186)) ([ba87586](https://github.com/mojaloop/central-services-metrics/commit/ba87586d5957530c110eb8bf875f2d1166843fc3))
+
 ### [12.7.1](https://github.com/mojaloop/central-services-metrics/compare/v12.7.0...v12.7.1) (2025-09-06)
 
 ## [12.7.0](https://github.com/mojaloop/central-services-metrics/compare/v12.6.0...v12.7.0) (2025-09-05)
