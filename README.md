@@ -5,6 +5,10 @@
 [![NPM Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@mojaloop/central-services-metrics.svg?style=flat)](https://www.npmjs.com/package/@mojaloop/central-services-metrics)
 [![CircleCI](https://circleci.com/gh/mojaloop/central-services-metrics.svg?style=svg)](https://circleci.com/gh/mojaloop/central-services-metrics)
 
+## CI/CD
+
+This repository uses the [mojaloop/build](https://github.com/mojaloop/ci-config-orb-build) CircleCI orb for standardized CI/CD workflows, including automated Grype vulnerability scanning for source code security.
+
 ## Installation
 
 ```bash
