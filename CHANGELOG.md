@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.8.3](https://github.com/mojaloop/central-services-metrics/compare/v12.8.2...v12.8.3) (2025-12-09)
+
+
+### Bug Fixes
+
+* **csi-1980:** skip metrics generation to unknown routes ([#190](https://github.com/mojaloop/central-services-metrics/issues/190)) ([4dcad41](https://github.com/mojaloop/central-services-metrics/commit/4dcad41082d457b70dd4e2dfc59f39bc811e9dd7))
+
 ### [12.8.2](https://github.com/mojaloop/central-services-metrics/compare/v12.8.1...v12.8.2) (2025-12-05)
 
 ### [12.8.1](https://github.com/mojaloop/central-services-metrics/compare/v12.8.0...v12.8.1) (2025-11-06)

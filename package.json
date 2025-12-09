@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/central-services-metrics",
-  "version": "12.8.2",
+  "version": "12.8.3",
   "description": "Shared code for metrics generation",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
