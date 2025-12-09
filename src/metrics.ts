@@ -34,7 +34,7 @@
 'use strict'
 
 import client = require('prom-client')
-import { type Server, Request, RequestRoute } from '@hapi/hapi'
+import { type Server, Request } from '@hapi/hapi'
 
 /**
  * Type that represents the options that are required for setup
@@ -304,7 +304,7 @@ class Metrics {
         requests--
         requestsGauge.dec({ method: request.method })
 
-        if (request.route.path === '/{p*}') return // not registered route
+        if (request.route.path === '/{p*}') return // unregistered (unknown) route
 
         const path = request.route.path
         const statusCode = String('isBoom' in request.response
