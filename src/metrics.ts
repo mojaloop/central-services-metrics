@@ -34,7 +34,7 @@
 'use strict'
 
 import client = require('prom-client')
-import { type Server } from '@hapi/hapi'
+import { type Server, Request, RequestRoute } from '@hapi/hapi'
 
 /**
  * Type that represents the options that are required for setup
@@ -299,11 +299,14 @@ class Metrics {
         return h.continue
       })
 
-      server.events.on('response', request => {
+      server.events.on('response', (request: Request) => {
         if (['/metrics', '/health', '/live'].includes(request.path)) return
         requests--
         requestsGauge.dec({ method: request.method })
-        const path = request.route.path === '/{p*}' ? request.path : request.route.path
+
+        if (request.route.path === '/{p*}') return // not registered route
+
+        const path = request.route.path
         const statusCode = String('isBoom' in request.response
           ? request.response.output.statusCode
           : request.response.statusCode)
