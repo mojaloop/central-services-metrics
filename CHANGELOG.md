@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.8.5](https://github.com/mojaloop/central-services-metrics/compare/v12.8.4...v12.8.5) (2026-02-19)
+
+
+### Bug Fixes
+
+* remove eslint from prod dependencies ([#193](https://github.com/mojaloop/central-services-metrics/issues/193)) ([9192069](https://github.com/mojaloop/central-services-metrics/commit/9192069baff30241d27eabb382f0dd3a9802c203))
+
 ### [12.8.4](https://github.com/mojaloop/central-services-metrics/compare/v12.8.3...v12.8.4) (2026-02-13)
 
 ### [12.8.3](https://github.com/mojaloop/central-services-metrics/compare/v12.8.2...v12.8.3) (2025-12-09)
