@@ -47,7 +47,7 @@ const exampleFunction = async (error, message) => {
       'Instrumentation for exampleFunction', // Description of metric
       ['success'] // Define a custom label 'success'
     ).startTimer() // Start instrumentation
-    
+
     try {
         Logger.info('do something meaningful here')
         histTimerEnd({success: true}) // End the instrumentation & set custom label 'success=true'
@@ -74,4 +74,100 @@ npm run audit:check
 ```
 
 The [audit-ci.jsonc](./audit-ci.jsonc) contains any audit-exceptions that cannot be fixed to ensure that CircleCI will build correctly.
+
+## Enhanced Infrastructure Utilities
+
+This library includes enhanced utilities for comprehensive metrics collection across your Node.js infrastructure stack.
+
+### Database Metrics with Knex.js Support
+
+The database metrics utility provides comprehensive instrumentation for database operations, with specialized support for Knex.js query builder including connection pooling, transactions, migrations, and query performance tracking.
+
+```typescript
+import { DatabaseMetrics } from '@mojaloop/central-services-metrics'
+import knex from 'knex'
+
+const databaseMetrics = new DatabaseMetrics(metrics)
+
+// Create and instrument Knex instance
+const db = knex({
+  client: 'mysql2', // or 'pg', 'sqlite3', etc.
+  connection: {
+    host: 'localhost',
+    user: 'root',
+    database: 'myapp'
+  },
+  pool: { min: 2, max: 10 }
+})
+
+// Instrument Knex with comprehensive metrics
+const instrumentedKnex = databaseMetrics.instrumentKnex(db, {
+  trackQueryBuilder: true,    // Track query builder method calls
+  trackConnectionPool: true,  // Monitor connection pool status
+  trackTransactions: true,    // Track transaction lifecycle
+  trackMigrations: true,      // Monitor migration operations
+  slowQueryThreshold: 1000    // Log slow queries over 1 second
+})
+
+// Access specific metric groups
+const knexMetrics = databaseMetrics.trackKnexMetrics()      // Knex-specific metrics
+const poolMetrics = databaseMetrics.trackConnectionPool()   // Connection pool metrics
+const queryMetrics = databaseMetrics.trackQueries()        // Query performance metrics
+const transactionMetrics = databaseMetrics.trackTransactions() // Transaction metrics
+```
+
+**Key features for Knex.js:**
+- **Query Tracking**: Monitors SELECT, INSERT, UPDATE, DELETE operations with timing
+- **Query Builder Analysis**: Tracks method chaining patterns and complexity
+- **Transaction Monitoring**: Tracks commit/rollback ratios and duration by isolation level
+- **Migration Operations**: Monitors migrate.latest, migrate.rollback, seed operations
+- **Connection Pool Health**: Real-time pool status (used/free/pending connections)
+- **Schema Operations**: Tracks table/index creation, alteration, and deletion
+- **Parameter Binding**: Monitors query parameter usage and patterns
+- **Result Set Analysis**: Tracks query result sizes and performance impact
+
+### WebSocket Metrics (for 'ws' library)
+
+The WebSocket metrics utility provides comprehensive instrumentation for WebSocket servers and clients using the popular `ws` library, including per-message-deflate compression, fragmentation handling, and protocol-specific features.
+
+```typescript
+import { WebSocketMetrics } from '@mojaloop/central-services-metrics'
+import WebSocket from 'ws'
+
+const wsMetrics = new WebSocketMetrics(metrics)
+
+// Instrument WebSocket server with 'ws' library features
+const wss = new WebSocket.Server({ 
+  port: 8080,
+  perMessageDeflate: true // Enable compression
+})
+
+wsMetrics.instrumentWebSocketServer(wss, {
+  trackPingPong: true,      // Track ping/pong frames
+  trackExtensions: true,    // Track WebSocket extensions
+  trackPerformance: true    // Track performance metrics
+})
+
+// Instrument WebSocket client
+const ws = new WebSocket('ws://localhost:8080')
+wsMetrics.instrumentWebSocketClient(ws, {
+  trackPingPong: true,
+  enablePingInterval: 30000 // Send ping every 30 seconds
+})
+
+// Track specific metrics
+const connectionMetrics = wsMetrics.trackConnections()  // Connection lifecycle
+const messageMetrics = wsMetrics.trackMessages()       // Message flow and opcodes
+const errorMetrics = wsMetrics.trackErrors()           // Protocol errors
+const heartbeatMetrics = wsMetrics.trackHeartbeat()    // Ping/pong latency
+const compressionMetrics = wsMetrics.trackCompression() // Per-message-deflate
+```
+
+**Key features for 'ws' library:**
+- **Protocol Support**: Tracks text (0x1) and binary (0x2) frame opcodes
+- **Compression Tracking**: Per-message-deflate compression ratios and savings
+- **Fragment Handling**: Tracks fragmented message frames
+- **Extension Support**: Monitors WebSocket protocol extensions
+- **Backpressure Monitoring**: Tracks bufferedAmount for flow control
+- **Performance Metrics**: Memory usage, throughput, buffer utilization
 

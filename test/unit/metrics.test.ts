@@ -294,7 +294,8 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     histogramConfig.help,
                     histogramConfig.labelNames,
                     histogramConfig.buckets)
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Histogram should be created with default help when help is empty')
+                test.equal(result.constructor.name, 'Histogram', 'Should be a Histogram instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get metrics histogram for test_request')
@@ -326,9 +327,12 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 metrics.setup(options)
                 const result: object = metrics.getHistogram(
-                    'test_request'
+                    'test_request',
+                    undefined,
+                    ['success', 'fsp', 'operation', 'source', 'destination']
                 )
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Histogram should be created with default help when help is null')
+                test.equal(result.constructor.name, 'Histogram', 'Should be a Histogram instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get metrics histogram for test_request')
@@ -474,7 +478,8 @@ Test('Metrics Class Test', (metricsTest: any) => {
                     summaryConfig.percentiles
                 )
 
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Summary should be created with default help when help is empty')
+                test.equal(result.constructor.name, 'Summary', 'Should be a Summary instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get summary for test_request_summary')
@@ -506,10 +511,13 @@ Test('Metrics Class Test', (metricsTest: any) => {
 
                 metrics.setup(options)
                 const result: object = metrics.getSummary(
-                    metricName
+                    metricName,
+                    undefined,
+                    summaryConfig.labelNames
                 )
 
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Summary should be created with default help when help is null')
+                test.equal(result.constructor.name, 'Summary', 'Should be a Summary instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get summary for test_request_summary')
@@ -617,13 +625,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
 
                 metrics.setup(options)
-                metrics.getCounter(
+                const result: object = metrics.getCounter(
                     'test_counter',
                     counterConfig.help,
                     counterConfig.labelNames
                 )
 
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Counter should be created with default help when help is empty')
+                test.equal(result.constructor.name, 'Counter', 'Should be a Counter instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get counter for test_counter')
@@ -640,11 +649,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
 
                 metrics.setup(options)
-                metrics.getCounter(
-                    'test_counter'
+                const result: object = metrics.getCounter(
+                    'test_counter',
+                    undefined,
+                    ['success', 'fsp']
                 )
 
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Counter should be created with default help when help is null')
+                test.equal(result.constructor.name, 'Counter', 'Should be a Counter instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get counter for test_counter')
@@ -952,13 +964,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
 
                 metrics.setup(options)
-                metrics.getGauge(
+                const result: object = metrics.getGauge(
                     'test_gauge',
                     gaugeConfig.help,
                     gaugeConfig.labelNames
                 )
 
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Gauge should be created with default help when help is empty')
+                test.equal(result.constructor.name, 'Gauge', 'Should be a Gauge instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get gauge for test_gauge')
@@ -975,11 +988,14 @@ Test('Metrics Class Test', (metricsTest: any) => {
                 }
 
                 metrics.setup(options)
-                metrics.getGauge(
-                    'test_gauge'
+                const result: object = metrics.getGauge(
+                    'test_gauge',
+                    undefined,
+                    ['success', 'fsp']
                 )
 
-                test.fail('Expected an error to be thrown with help param being empty or null')
+                test.ok(result, 'Gauge should be created with default help when help is null')
+                test.equal(result.constructor.name, 'Gauge', 'Should be a Gauge instance')
                 test.end()
             } catch (e) {
                 test.equal(e.message, 'Couldn\'t get gauge for test_gauge')

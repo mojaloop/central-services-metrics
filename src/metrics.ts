@@ -92,6 +92,9 @@ class Metrics {
   /** Object containing the gauge values */
   private _gauges: gaugesType = {}
 
+  /** Cache for metric instances to avoid duplicate creation */
+  private _metricInstances: Map<string, client.Metric<string>> = new Map()
+
   /**
    * Setup the prom client for collecting metrics using the options passed
    */
@@ -128,6 +131,7 @@ class Metrics {
   }
 
   _setupDefaultServiceMetrics = (): void => {
+    // Legacy error metrics
     this.getCounter(
       'errorCount',
       'Error count',
@@ -140,81 +144,111 @@ class Metrics {
       ['service'],
       false
     )
+
+    // Standard service metrics following industry patterns
+    this.getCounter(
+      'service_errors_total',
+      'Service errors by type',
+      ['service', 'error_type', 'severity']
+    )
+    this.getGauge(
+      'service_up',
+      'Service availability indicator',
+      ['service']
+    )
+    this.getHistogram(
+      'service_startup_duration_seconds',
+      'Service startup duration',
+      ['service'],
+      [0.1, 0.5, 1, 2, 5, 10, 30]
+    )
   }
 
   /**
-   * Get the histogram values for given name
+   * Get the histogram values for given name with enhanced bucket options
    */
   // getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram<string> => { // <-- required for Prom-Client v12.x
   getHistogram = (name: string, help?: string, labelNames?: string[], buckets: number[] = [0.010, 0.050, 0.1, 0.5, 1, 2, 5]): client.Histogram<string> => { // <-- required for Prom-Client v11.x
     try {
+      const metricKey = `histogram_${this.getOptions().prefix}${name}`
       if (this._histograms[name] != null) {
         return this._histograms[name]
       }
       this._histograms[name] = new client.Histogram({
         name: `${this.getOptions().prefix}${name}`,
-        help: (help != null ? help : `${name}_histogram`),
+        help: (help != null && help.length > 0 ? help : `${name}_histogram`),
         labelNames,
-        buckets // this is in seconds - the startTimer().end() collects in seconds with ms precision
+        buckets, // this is in seconds - the startTimer().end() collects in seconds with ms precision
+        registers: [this._register]
       })
+      this._metricInstances.set(metricKey, this._histograms[name])
       return this._histograms[name]
     } catch (e) {
-      throw new Error(`Couldn't get metrics histogram for ${name}`)
+      throw new Error(`Couldn't get metrics histogram for ${name}: ${e instanceof Error ? e.message : 'unknown error'}`)
     }
   }
 
   /**
-   * Get the summary for given name
+   * Get the summary for given name with configurable percentiles
    */
   // getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [ 0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary<string> => { // <-- required for Prom-Client v12.x
   getSummary = (name: string, help?: string, labelNames?: string[], percentiles: number[] = [0.01, 0.05, 0.5, 0.9, 0.95, 0.99, 0.999], maxAgeSeconds: number = 600, ageBuckets: number = 5): client.Summary<string> => { // <-- required for Prom-Client v11.x
     try {
+      const metricKey = `summary_${this.getOptions().prefix}${name}`
       if (this._summaries[name] != null) {
         return this._summaries[name]
       }
       this._summaries[name] = new client.Summary({
         name: `${this.getOptions().prefix}${name}`,
-        help: (help != null ? help : `${name}_summary`),
+        help: (help != null && help.length > 0 ? help : `${name}_summary`),
         labelNames,
         maxAgeSeconds,
         percentiles,
-        ageBuckets
+        ageBuckets,
+        registers: [this._register]
       })
+      this._metricInstances.set(metricKey, this._summaries[name])
       return this._summaries[name]
     } catch (e) {
-      throw new Error(`Couldn't get summary for ${name}`)
+      throw new Error(`Couldn't get summary for ${name}: ${e instanceof Error ? e.message : 'unknown error'}`)
     }
   }
 
   getCounter = (name: string, help?: string, labelNames?: string[], prefix: boolean = true): client.Counter<string> => {
     try {
+      const metricKey = `counter_${prefix ? this.getOptions().prefix : ''}${name}`
       if (this._counters[name] != null) {
         return this._counters[name]
       }
       this._counters[name] = new client.Counter({
         name: `${prefix ? this.getOptions().prefix : ''}${name}`,
-        help: (help != null ? help : `${name}_counter`),
-        labelNames
+        help: (help != null && help.length > 0 ? help : `${name}_counter`),
+        labelNames,
+        registers: [this._register]
       })
+      this._metricInstances.set(metricKey, this._counters[name])
       return this._counters[name]
     } catch (e) {
-      throw new Error(`Couldn't get counter for ${name}`)
+      throw new Error(`Couldn't get counter for ${name}: ${e instanceof Error ? e.message : 'unknown error'}`)
     }
   }
 
   getGauge = (name: string, help?: string, labelNames?: string[]): client.Gauge<string> => {
     try {
+      const metricKey = `gauge_${this.getOptions().prefix}${name}`
       if (this._gauges[name] != null) {
         return this._gauges[name]
       }
       this._gauges[name] = new client.Gauge({
         name: `${this.getOptions().prefix}${name}`,
-        help: (help != null ? help : `${name}_gauge`),
-        labelNames
+        help: (help != null && help.length > 0 ? help : `${name}_gauge`),
+        labelNames,
+        registers: [this._register]
       })
+      this._metricInstances.set(metricKey, this._gauges[name])
       return this._gauges[name]
     } catch (e) {
-      throw new Error(`Couldn't get gauge for ${name}`)
+      throw new Error(`Couldn't get gauge for ${name}: ${e instanceof Error ? e.message : 'unknown error'}`)
     }
   }
 
@@ -245,6 +279,110 @@ class Metrics {
 
   getClient = (): typeof client => {
     return client
+  }
+
+  /**
+   * Enhanced utility methods for common metric patterns
+   */
+
+  /**
+   * Create standardized latency histogram with common buckets for different use cases
+   */
+  getLatencyHistogram = (name: string, help?: string, labelNames?: string[], type: 'api' | 'database' | 'network' | 'custom' = 'api'): client.Histogram<string> => {
+    const bucketPresets = {
+      api: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+      database: [0.001, 0.01, 0.1, 0.5, 1, 2, 5, 10, 30],
+      network: [0.01, 0.1, 0.5, 1, 2, 5, 10, 30, 60],
+      custom: [0.010, 0.050, 0.1, 0.5, 1, 2, 5]
+    }
+
+    return this.getHistogram(name, help, labelNames, bucketPresets[type])
+  }
+
+  /**
+   * Create standardized size histogram with common buckets for payload/data sizes
+   */
+  getSizeHistogram = (name: string, help?: string, labelNames?: string[], type: 'payload' | 'memory' | 'file' = 'payload'): client.Histogram<string> => {
+    const bucketPresets = {
+      payload: [100, 1000, 10000, 100000, 1000000, 10000000],
+      memory: [1024, 10240, 102400, 1048576, 10485760, 104857600, 1073741824],
+      file: [1024, 10240, 102400, 1048576, 10485760, 104857600, 1073741824, 10737418240]
+    }
+
+    return this.getHistogram(name, help, labelNames, bucketPresets[type])
+  }
+
+  /**
+   * Create a timer utility that returns a function to end the timer
+   */
+  createTimer = (histogram: client.Histogram<string>, labels?: Record<string, string>) => {
+    return histogram.startTimer(labels)
+  }
+
+  /**
+   * Measure function execution time
+   */
+  measureDuration = async <T>(
+    histogram: client.Histogram<string>,
+    fn: () => Promise<T> | T,
+    labels?: Record<string, string>
+  ): Promise<T> => {
+    const timer = this.createTimer(histogram, labels)
+    try {
+      const result = await fn()
+      return result
+    } finally {
+      timer()
+    }
+  }
+
+  /**
+   * Clear all cached metrics (useful for testing)
+   */
+  clearMetrics = (): void => {
+    this._histograms = {}
+    this._summaries = {}
+    this._counters = {}
+    this._gauges = {}
+    this._metricInstances.clear()
+    this._register.clear()
+  }
+
+  /**
+   * Get all registered metric names
+   */
+  getRegisteredMetrics = (): string[] => {
+    return Array.from(this._metricInstances.keys())
+  }
+
+  /**
+   * Check if a metric exists
+   */
+  hasMetric = (name: string, type: 'counter' | 'gauge' | 'histogram' | 'summary'): boolean => {
+    const metricKey = `${type}_${this.getOptions().prefix}${name}`
+    return this._metricInstances.has(metricKey)
+  }
+
+  /**
+   * Create standardized error counter with common labels
+   */
+  getErrorCounter = (name: string, help?: string): client.Counter<string> => {
+    return this.getCounter(
+      name,
+      help || 'Error count by type and severity',
+      ['error_type', 'severity', 'operation']
+    )
+  }
+
+  /**
+   * Create standardized performance gauge for tracking resource utilization
+   */
+  getPerformanceGauge = (name: string, help?: string): client.Gauge<string> => {
+    return this.getGauge(
+      name,
+      help || 'Performance metric',
+      ['resource_type', 'unit']
+    )
   }
 
   plugin = {
