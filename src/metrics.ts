@@ -159,7 +159,7 @@ class Metrics {
       })
       return this._histograms[name]
     } catch (e) {
-      throw new Error(`Couldn't get metrics histogram for ${name}`)
+      throw new Error(`Couldn't get metrics histogram for ${name}`, { cause: e })
     }
   }
 
@@ -182,7 +182,7 @@ class Metrics {
       })
       return this._summaries[name]
     } catch (e) {
-      throw new Error(`Couldn't get summary for ${name}`)
+      throw new Error(`Couldn't get summary for ${name}`, { cause: e })
     }
   }
 
@@ -198,7 +198,7 @@ class Metrics {
       })
       return this._counters[name]
     } catch (e) {
-      throw new Error(`Couldn't get counter for ${name}`)
+      throw new Error(`Couldn't get counter for ${name}`, { cause: e })
     }
   }
 
@@ -214,7 +214,7 @@ class Metrics {
       })
       return this._gauges[name]
     } catch (e) {
-      throw new Error(`Couldn't get gauge for ${name}`)
+      throw new Error(`Couldn't get gauge for ${name}`, { cause: e })
     }
   }
 
