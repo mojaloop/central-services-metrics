@@ -64,7 +64,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hapi/hapi": "^21.4.9",
-    "@types/node": "^26.1.0",
+    "@types/node": "^24.13.2",
     "@types/tape": "5.8.1",
     "@typescript-eslint/eslint-plugin": "8.63.0",
     "@typescript-eslint/parser": "8.63.0",
