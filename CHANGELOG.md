@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.8.8](https://github.com/mojaloop/central-services-metrics/compare/v12.8.7...v12.8.8) (2026-08-10)
+
 ### [12.8.7](https://github.com/mojaloop/central-services-metrics/compare/v12.8.6...v12.8.7) (2026-07-08)
 
 ### [12.8.6](https://github.com/mojaloop/central-services-metrics/compare/v12.8.5...v12.8.6) (2026-06-26)
