@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.8.9](https://github.com/mojaloop/central-services-metrics/compare/v12.8.8...v12.8.9) (2026-10-05)
+
+
+### Bug Fixes
+
+* **security:** patch 7 vulnerabilities + update deps, orb ([#198](https://github.com/mojaloop/central-services-metrics/issues/198)) ([0694121](https://github.com/mojaloop/central-services-metrics/commit/0694121b98565b25de34c17e60e08d7ddfae0b16))
+
 ### [12.8.8](https://github.com/mojaloop/central-services-metrics/compare/v12.8.7...v12.8.8) (2026-08-10)
 
 ### [12.8.7](https://github.com/mojaloop/central-services-metrics/compare/v12.8.6...v12.8.7) (2026-07-08)
